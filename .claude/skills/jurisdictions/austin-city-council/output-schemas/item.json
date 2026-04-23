@@ -1,1 +1,313 @@
-{}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revere.dev/schemas/austin-city-council/item.json",
+  "title": "Austin City Council ingestion item",
+  "description": "Canonical record emitted by the austin-city-council skill pack. One shape for motions, public hearings, staff reports, consent items, and proclamations — discriminated by the `type` field. Ships instead of PRD §17.1's three separate schemas; see docs/plans/session-1-austin-skill.md.",
+  "type": "object",
+  "required": [
+    "id",
+    "jurisdiction",
+    "meeting_id",
+    "meeting_date",
+    "legistar_item_id",
+    "legistar_item_guid",
+    "agenda_item_number",
+    "type",
+    "status",
+    "title",
+    "sponsors",
+    "topics",
+    "sources",
+    "scraped_at",
+    "source_hash"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Legistar File # (e.g. '26-1501').",
+      "pattern": "^[0-9]{2}-[0-9]+$"
+    },
+    "jurisdiction": { "const": "austin-city-council" },
+    "meeting_id": { "type": "integer", "minimum": 1 },
+    "meeting_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Meeting date in ISO 8601 YYYY-MM-DD. Drives action-window scoring in T-17."
+    },
+    "legistar_item_id": { "type": "integer", "minimum": 1 },
+    "legistar_item_guid": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Both ID and GUID are required — ID-only URLs return 'Invalid parameters!' on Legistar."
+    },
+    "agenda_item_number": { "type": "integer", "minimum": 0 },
+    "type": {
+      "enum": ["motion", "public_hearing", "staff_report", "consent", "proclamation"],
+      "description": "Discriminator. Motions cover votes, ordinances, and resolutions. Many real items are both motion and public_hearing simultaneously — pick the more specific type and surface the hearing via hearing_details."
+    },
+    "status": {
+      "enum": ["Agenda Ready", "Approved", "Denied", "Postponed", "Withdrawn", "Enacted"]
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "body": { "type": ["string", "null"] },
+    "sponsors": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Councilmember names. Empty array is valid for applicant-driven zoning items."
+    },
+    "applicants": {
+      "oneOf": [
+        { "type": "null" },
+        { "type": "array", "items": { "type": "string" } }
+      ],
+      "description": "For zoning and similar items: owner / applicant / agent names."
+    },
+    "location": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "address": { "type": ["string", "null"] },
+            "council_district": {
+              "oneOf": [
+                { "type": "null" },
+                { "type": "integer", "minimum": 0, "maximum": 10 }
+              ],
+              "description": "0 = citywide / at-large; 1..10 = council districts. Never inferred from a street name — sourced from reference/council-districts.md or an explicit geocode."
+            },
+            "neighborhood": { "type": ["string", "null"] },
+            "watershed": { "type": ["string", "null"] }
+          }
+        }
+      ]
+    },
+    "hearing_details": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "description": "Populated when type = 'public_hearing' or a hearing is scheduled.",
+          "additionalProperties": false,
+          "properties": {
+            "comment_deadline": {
+              "oneOf": [{ "type": "null" }, { "type": "string", "format": "date-time" }]
+            },
+            "in_person_time": {
+              "oneOf": [{ "type": "null" }, { "type": "string", "format": "date-time" }]
+            }
+          }
+        }
+      ]
+    },
+    "staff_report_details": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "description": "Populated when type = 'staff_report'.",
+          "additionalProperties": false,
+          "properties": {
+            "authoring_department": { "type": ["string", "null"] }
+          }
+        }
+      ]
+    },
+    "zoning": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "description": "Populated when the item contains a zoning change. Sub-fields are LLM-extracted (not selector-extracted); each carries its own confidence and raw_passage per the hard rule in SKILL.md.",
+          "additionalProperties": false,
+          "required": [
+            "current",
+            "proposed",
+            "staff_recommendation",
+            "planning_commission_recommendation",
+            "opposition_petition_filed"
+          ],
+          "properties": {
+            "current": { "$ref": "#/$defs/extractedString" },
+            "proposed": { "$ref": "#/$defs/extractedString" },
+            "staff_recommendation": { "$ref": "#/$defs/extractedRecommendation" },
+            "planning_commission_recommendation": { "$ref": "#/$defs/extractedRecommendation" },
+            "opposition_petition_filed": { "$ref": "#/$defs/extractedBoolean" }
+          }
+        }
+      ]
+    },
+    "topics": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "housing",
+          "transportation",
+          "public-safety",
+          "budget",
+          "land-use",
+          "commercial-regulation"
+        ]
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/sourceRef" },
+      "description": "Typed references. At minimum, one entry with type = 'item_detail' pointing at the LegislationDetail URL. Video entries land here in T-11 when the ATXN discovery step is built."
+    },
+    "video": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["youtube_url"],
+          "properties": {
+            "youtube_url": { "type": "string", "format": "uri" },
+            "start_seconds": { "type": "number", "minimum": 0 }
+          }
+        }
+      ],
+      "description": "Deprecated convenience field. Prefer sources[type='video']. Allowed null for T-06 gate; T-11 will populate via ATXN discovery."
+    },
+    "scraped_at": { "type": "string", "format": "date-time" },
+    "source_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 hex of the raw Legistar HTML at scrape time. Used for dedup and change-detection across re-scrapes."
+    }
+  },
+  "$defs": {
+    "confidence": {
+      "enum": ["high", "medium", "low", null]
+    },
+    "extractedString": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "confidence", "raw_passage"],
+      "properties": {
+        "value": { "type": ["string", "null"] },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "raw_passage": { "type": ["string", "null"] }
+      }
+    },
+    "extractedRecommendation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "confidence", "raw_passage"],
+      "properties": {
+        "value": { "enum": ["approve", "deny", "other", null] },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "raw_passage": { "type": ["string", "null"] }
+      }
+    },
+    "extractedBoolean": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "confidence", "raw_passage"],
+      "properties": {
+        "value": { "type": ["boolean", "null"] },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "raw_passage": { "type": ["string", "null"] }
+      }
+    },
+    "sourceRef": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": { "const": "agenda_pdf" },
+            "url": { "type": "string", "format": "uri" },
+            "page": { "type": "integer", "minimum": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": { "const": "item_detail" },
+            "url": { "type": "string", "format": "uri" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": { "const": "staff_report" },
+            "url": { "type": "string", "format": "uri" },
+            "title": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": { "const": "ordinance" },
+            "url": { "type": "string", "format": "uri" },
+            "title": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": { "const": "exhibit" },
+            "url": { "type": "string", "format": "uri" },
+            "title": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": { "const": "map" },
+            "url": { "type": "string", "format": "uri" },
+            "title": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": { "const": "public_comment" },
+            "url": { "type": "string", "format": "uri" },
+            "title": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": { "const": "video" },
+            "url": { "type": "string", "format": "uri" },
+            "timestamp_seconds": { "type": "number", "minimum": 0 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "url"],
+          "properties": {
+            "type": { "const": "other" },
+            "url": { "type": "string", "format": "uri" },
+            "title": { "type": "string" }
+          }
+        }
+      ]
+    }
+  }
+}
