@@ -1,1 +1,78 @@
-{}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revere.dev/schemas/fingerprint/synthesis-resolution.json",
+  "title": "Synthesis resolution",
+  "description": "Resolution of synthesis-split join atoms emitted by the verification skill. Consumed by T-18 (briefing synthesis composer) to decide whether to render personal-relevance framing on briefing items. Resolver lives in .claude/skills/fingerprint/reference/synthesis-resolver.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "user_id",
+    "verification_report_id",
+    "resolved_at",
+    "resolver_version",
+    "fingerprint_version_used",
+    "resolutions",
+    "fingerprint_validation"
+  ],
+  "properties": {
+    "user_id": { "type": "string", "minLength": 1 },
+    "verification_report_id": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_id", "item_source_hash", "verified_at"],
+      "properties": {
+        "item_id": { "type": "string", "pattern": "^[0-9]{2}-[0-9]+$" },
+        "item_source_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "verified_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "resolved_at": { "type": "string", "format": "date-time" },
+    "resolver_version": { "type": "string" },
+    "fingerprint_version_used": { "type": "string", "format": "date-time" },
+    "resolutions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/joinResolution" }
+    },
+    "fingerprint_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["valid", "missing_fields", "degraded_dimensions"],
+      "properties": {
+        "valid": { "const": true },
+        "missing_fields": { "type": "array", "items": { "type": "string" } },
+        "degraded_dimensions": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "$defs": {
+    "joinResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_id", "resolution", "confidence", "reason", "fingerprint_evidence"],
+      "properties": {
+        "claim_id": { "type": "string", "minLength": 1 },
+        "resolution": { "enum": ["resolved", "rejected", "generic_fallback"] },
+        "confidence": { "enum": ["high", "medium", "low"] },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "fingerprint_evidence": {
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["field_path", "value"],
+                "properties": {
+                  "field_path": { "type": "string" },
+                  "value": {}
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
