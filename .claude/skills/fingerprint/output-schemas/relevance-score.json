@@ -1,1 +1,121 @@
-{}
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revere.dev/schemas/fingerprint/relevance-score.json",
+  "title": "Relevance score",
+  "description": "Per-(user × item) relevance score emitted by the fingerprint skill. Consumed by T-17 (matcher) for nightly briefing composition and T-27 (trust pane) for the 'why am I seeing this' surface. Scoring formula and surface decision live in .claude/skills/fingerprint/reference/scoring-rubric.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "user_id",
+    "item_id",
+    "scored_at",
+    "scorer_version",
+    "fingerprint_version_used",
+    "pre_score",
+    "post_score",
+    "threshold_used",
+    "slider_value",
+    "surfaced",
+    "surface_reason",
+    "breakdown",
+    "topic_overlap_detail",
+    "why_this",
+    "fingerprint_validation"
+  ],
+  "properties": {
+    "user_id": { "type": "string", "minLength": 1 },
+    "item_id": {
+      "type": "string",
+      "pattern": "^[0-9]{2}-[0-9]+$"
+    },
+    "scored_at": { "type": "string", "format": "date-time" },
+    "scorer_version": { "type": "string" },
+    "fingerprint_version_used": { "type": "string", "format": "date-time" },
+    "pre_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "post_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "threshold_used": { "type": "number", "enum": [0.65, 0.55, 0.40] },
+    "slider_value": { "enum": ["strict", "balanced", "broad"] },
+    "surfaced": { "type": "boolean" },
+    "surface_reason": {
+      "enum": ["score_above_threshold", "critical_override", "below_threshold", "anti_priority_suppressed"]
+    },
+    "breakdown": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "geography_match",
+        "topic_overlap",
+        "priority_phrase_match",
+        "action_window_boost",
+        "anti_priority_hit"
+      ],
+      "properties": {
+        "geography_match": { "type": "number", "enum": [0, 1] },
+        "topic_overlap": { "type": "number", "minimum": 0, "maximum": 1 },
+        "priority_phrase_match": { "type": "number", "enum": [0, 1] },
+        "action_window_boost": { "type": "number", "enum": [0, 1] },
+        "anti_priority_hit": { "type": "number", "enum": [0, 1] }
+      }
+    },
+    "topic_overlap_detail": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fingerprint_topic", "mapped_taxonomy", "weight", "contribution", "matched_via"],
+        "properties": {
+          "fingerprint_topic": { "type": "string" },
+          "mapped_taxonomy": {
+            "oneOf": [
+              { "type": "null" },
+              { "enum": ["housing", "transportation", "public-safety", "budget", "land-use", "commercial-regulation"] }
+            ]
+          },
+          "weight": { "type": "number", "minimum": 0, "maximum": 1 },
+          "contribution": { "type": "number", "minimum": 0, "maximum": 1 },
+          "matched_via": { "enum": ["topic_overlap", "priority_phrase_match", "no_match"] }
+        }
+      }
+    },
+    "why_this": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "[a-z_]+(\\.[a-z_]+|\\[[a-z_]+\\])+"
+    },
+    "fingerprint_validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["valid", "missing_fields", "degraded_dimensions"],
+      "properties": {
+        "valid": { "const": true },
+        "missing_fields": { "type": "array", "items": { "type": "string" } },
+        "degraded_dimensions": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "geography_match",
+              "topic_overlap",
+              "priority_phrase_match",
+              "action_window_boost",
+              "anti_priority_hit"
+            ]
+          }
+        },
+        "defaults_applied": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["field", "default", "reason"],
+            "properties": {
+              "field": { "type": "string" },
+              "default": {},
+              "reason": { "enum": ["absent", "sanity_check"] }
+            }
+          }
+        }
+      }
+    }
+  }
+}
