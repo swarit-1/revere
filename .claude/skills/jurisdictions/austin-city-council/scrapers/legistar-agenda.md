@@ -32,21 +32,45 @@ Static PDFs, plain GET:
 
 No authentication, no paywall.
 
-## Field extraction — label-value lookup
+## Field extraction — Telerik span IDs (verified live in T-11)
 
-Legistar's HTML is ASP.NET WebForms. DOM IDs look like
-`ctl00$ContentPlaceHolder1$gridLegislation` — stable today but fragile to
-framework updates. **Prefer label-value lookup over literal IDs.**
+Legistar pages are Telerik / ASP.NET WebForms. **Stable per-field span IDs
+of the form `#ctl00_ContentPlaceHolder1_lbl<Field>` exist on every page**
+and are the cleanest selectors. Live verification during T-11 confirmed
+these IDs match across MeetingDetail and LegislationDetail.
 
-Pattern (Cheerio):
+**One gotcha that bit T-11 on its first run:** the label-vs-value
+naming convention differs between pages.
+
+| Page                     | Label (descriptor) span | Value span               |
+|--------------------------|-------------------------|--------------------------|
+| `MeetingDetail.aspx`     | `lbl<Field>X`           | `lbl<Field>`             |
+| `LegislationDetail.aspx` | `lbl<Field>`            | `lbl<Field>2`            |
+
+Inverted. Always read the **non-label** span. The `2` suffix on item
+pages denotes the populated-with-value variant; the unsuffixed version
+is the static label "File #:" / "Type:" / etc.
+
+Pattern (Cheerio, with the right suffix):
 
 ```js
-// Find the cell whose text contains the label, then read the sibling cell.
-const fileNumber = $('td:contains("File #:")').next().text().trim();
-const type       = $('td:contains("Type:")').next().text().trim();
-const status     = $('td:contains("Status:")').next().text().trim();
-const onAgenda   = $('td:contains("On agenda:")').next().text().trim();
+// MeetingDetail (no '2' suffix; the 'X' suffix is the label)
+const meetingDate = $('#ctl00_ContentPlaceHolder1_lblDate').text().trim();
+const location    = $('#ctl00_ContentPlaceHolder1_lblLocation').text().trim();
+
+// MeetingDetail body name lives in an anchor, not a span:
+const body        = $('#ctl00_ContentPlaceHolder1_hypName').text().trim();
+
+// LegislationDetail ('2' suffix on values)
+const fileNumber  = $('#ctl00_ContentPlaceHolder1_lblFile2').text().trim();
+const type        = $('#ctl00_ContentPlaceHolder1_lblType2').text().trim();
+const status      = $('#ctl00_ContentPlaceHolder1_lblStatus2').text().trim();
+const title       = $('#ctl00_ContentPlaceHolder1_lblTitle2').text().trim();
 ```
+
+Fallback: if a `2`-suffixed value span is missing, try the unsuffixed
+form (some legacy items render in the older layout). Halt only if both
+miss — selector drift is real and silent.
 
 Meeting-level fields available on `MeetingDetail.aspx`:
 
