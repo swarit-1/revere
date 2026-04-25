@@ -1,67 +1,90 @@
 ---
 name: fingerprint
 description: |
-  How to interpret a civic fingerprint and score a candidate briefing item
-  against it. Use when ranking items for a specific user (Maya, Jason, or
-  any recruited user), deciding what to surface vs. suppress, or explaining
-  why an item was chosen.
+  Use when interpreting a civic fingerprint to score a verified item, resolve a
+  synthesis-split join atom from the verification skill, pick a drafting voice
+  for T-10, or validate an inbound fingerprint. Callers: T-17 (matcher), T-18
+  (briefing synthesis), T-10 (drafting), the verification skill (via
+  defer_to_fingerprint remediation). Pure function: performs no Supabase calls
+  or network I/O — the caller supplies the fingerprint object.
 ---
 
-# Civic Fingerprint — Interpretation & Scoring
+# Fingerprint — Interpretation & Scoring
 
-A civic fingerprint is a structured representation of what a specific
-constituent cares about: topics, geographies, identities, lived experiences,
-and anti-priorities (things they explicitly don't want surfaced).
+This file is the entry point. Route by the question you're answering, then
+load only the file(s) that question points to. Scoring, synthesis resolution,
+voice resolution, and validation are SEPARATE calls — never load all six
+reference files as a set.
 
-## Fingerprint shape
+## Decision tree
 
-See `@packages/shared/types/fingerprint.ts` for the canonical type. At minimum:
+1. **Score an item against a fingerprint?** → `reference/scoring-rubric.md`
+   (entry; pulls `topic-vocabulary-map.md` and, if the item triggers an
+   anti hit, `anti-priority-policy.md`).
+2. **Resolve a synthesis join atom from the verification skill's
+   `defer_to_fingerprint` remediation?** → `reference/synthesis-resolver.md`.
+3. **Pick a drafting voice for T-10?** →
+   `reference/voice-resolver.md`.
+4. **Validate an inbound fingerprint?** →
+   `reference/validation-policy.md`.
+5. **Emit a record?** → `output-schemas/relevance-score.json` for scoring,
+   `output-schemas/synthesis-resolution.json` for synthesis.
 
-- `districts` — council districts the user lives/works/organizes in.
-- `topics` — weighted topic tags (e.g. `housing:0.9`, `policing:0.3`).
-- `priorities` — free-text phrases the user said matter to them.
-- `anti_priorities` — free-text phrases the user said do NOT matter, or
-  actively turn them off.
-- `voice` — preferred drafting tone (`measured` | `direct` | `persuasive`).
+## Scope
 
-## Relevance-scoring rubric
+- **Input.** A `Fingerprint` object (canonical type:
+  `@packages/shared/src/types/fingerprint.ts`, matching PRD §8.2) plus a
+  call-specific payload: a verified `item.json`, a list of synthesis join
+  atoms, or nothing (for voice / validation).
+- **Output.** A `relevance_score`, a `synthesis_resolution`, a voice tag,
+  or a `fingerprint_validation` block — depending on the call.
+- **Pure function.** No Supabase access. No network. The caller supplies
+  the fingerprint and any associated payload.
 
-Score each candidate item on a 0–1 scale using this weighted sum, clipped to
-`[0, 1]`:
+## Hard rules (six)
 
-- **Geography match** (0.30) — item affects a district in `districts`, or
-  citywide with direct downstream effect on one.
-- **Topic overlap** (0.30) — normalized cosine of item topic tags vs.
-  `topics`.
-- **Priority phrase match** (0.25) — semantic hit on any `priorities` phrase.
-- **Anti-priority penalty** (−0.40) — subtract if any `anti_priorities` phrase
-  semantically matches. This is a hard suppressor: a strong anti-priority hit
-  should drop the item below the threshold regardless of other signals.
-- **Action-window boost** (0.15) — item has an imminent decision point
-  (vote within 7 days, public comment deadline within 48h).
+1. **Never score without a `why_this` explanation** that references at
+   least one fingerprint field by path (e.g.
+   `priorities[housing_cost].weight=0.9`). ≤200 chars. The schema
+   enforces it; do not bypass.
+2. **Anti-priority enforcement = soft penalty + pre-penalty critical
+   override.** Never hard-suppress on anti hit alone. See
+   `anti-priority-policy.md`.
+3. **Topic-overlap channel uses the canonical taxonomy enum only.**
+   Fingerprint topics that don't map → fall through to
+   `priority_phrase_match` (free-text channel). Never silently dropped.
+   Map lives in `topic-vocabulary-map.md`.
+4. **Read `learned_voice_style`; do not write or compute it.**
+   Longitudinal learning lives in T-21 follow-up; this skill only reads.
+5. **Graceful degradation, not refuse-to-score.** Missing
+   `location.council_district` zeros geography_match. Missing
+   `priorities[]` zeros topic_overlap and priority_phrase_match.
+   Missing `relevance_slider` defaults to `balanced`. Malformed root
+   refuses (returns a `fingerprint_validation_error`).
+6. **No callbacks.** This skill does not call the verification skill,
+   does not open jurisdiction taxonomy files, does not access
+   fingerprint persistence (Supabase). Synthesis flow is unidirectional:
+   verification → fingerprint → T-18 composes.
 
-Threshold: surface items scoring ≥ 0.55. Below that, suppress unless the user
-has an explicit standing interest (a "watch list" topic, not yet modeled in
-v1 — see PRD §20).
+## Validation summary
 
-## Anti-priority rules
+`user_id`, `priorities[]`, `relevance_slider` are required (slider
+defaults to `balanced` if absent). `location.council_district`,
+`housing.status`, `anti_priorities`, `learned_voice_style` are
+required-conditional with documented degradation per
+`validation-policy.md`. Every successful output carries a
+`fingerprint_validation: {valid, missing_fields, degraded_dimensions}`
+block so T-17 can log trace metadata.
 
-Anti-priorities are **stricter than priorities**. A clear anti-priority match
-should always suppress the item, even if geography and topic scores are high.
-The briefing's job is to earn trust by not wasting attention. A false positive
-here (surfacing something the user said they don't want) costs more than a
-false negative.
+## Divergences from PRD §8 + §9
 
-## Explanation requirement
-
-Every surfaced item must carry a one-line "why this" explanation referencing
-the fingerprint component that drove the surface (e.g. "District 4 +
-standing housing priority"). No explanation → don't surface. This is what
-makes the fingerprint legible to the user and debuggable to us.
-
-## Hard rules
-
-- Never surface an item that hits any `anti_priorities` phrase.
-- Never surface an item without a `why_this` explanation.
-- Never score on fingerprint data the user hasn't actually given. If a field
-  is empty, treat its weight as zero — don't infer.
+Twelve divergences recorded in `@docs/plans/session-3-fingerprint-skill.md`.
+Highlights: slider thresholds set at 0.65/0.55/0.40; anti-priority
+critical override evaluated against pre-penalty score (post-penalty
+maxes at 0.60 with full clipping); structured `learned_voice_style`
+triple `{tone, length_preference, formality}`; voice resolution lives
+here, not in T-10; `why_this` is a required field; synthesis resolution
+adds `confidence` and a `generic_fallback` state; watch list deferred
+to BACKLOG. Score going forward only on fingerprint edits — Supabase
+stamps `fingerprint.updated_at`, T-17 stamps `fingerprint_version_used`
+on every briefing item.
