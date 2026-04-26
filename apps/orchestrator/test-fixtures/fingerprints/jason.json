@@ -1,0 +1,40 @@
+{
+  "user_id": "jason",
+  "location": {
+    "city": "Austin",
+    "county": "Travis",
+    "state": "TX",
+    "council_district": 3,
+    "isd": "Austin ISD",
+    "state_house_district": 51,
+    "state_senate_district": 14,
+    "us_house_district": 35
+  },
+  "housing": {
+    "status": "owner",
+    "unit_type": "duplex",
+    "building_type": "owned"
+  },
+  "household": [
+    { "role": "self", "age_bracket": "40-49" }
+  ],
+  "work": {
+    "commute_mode": "walk",
+    "commute_route_keywords": ["E 6th", "East 6th", "downtown"],
+    "sector": "small_business"
+  },
+  "priorities": [
+    { "topic": "property_taxes", "weight": 0.9 },
+    { "topic": "small_business_permitting", "weight": 0.9 },
+    { "topic": "commercial_zoning", "weight": 0.8 },
+    { "topic": "tabc_rules", "weight": 0.8 },
+    { "topic": "downtown_safety", "weight": 0.7 }
+  ],
+  "anti_priorities": [
+    "school_board_politics",
+    "suburban_annexation"
+  ],
+  "relevance_slider": "balanced",
+  "learned_voice_style": {},
+  "feedback_history": []
+}

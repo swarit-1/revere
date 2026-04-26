@@ -1,0 +1,44 @@
+{
+  "user_id": "maya",
+  "location": {
+    "city": "Austin",
+    "county": "Travis",
+    "state": "TX",
+    "council_district": 3,
+    "isd": "Austin ISD",
+    "school_zone": "Zavala Elementary",
+    "state_house_district": 51,
+    "state_senate_district": 14,
+    "us_house_district": 35
+  },
+  "housing": {
+    "status": "renter",
+    "unit_type": "1BR apartment",
+    "approximate_rent": 1850,
+    "building_type": "market_rate"
+  },
+  "household": [
+    { "role": "self", "age_bracket": "30-39" },
+    { "role": "child", "age": 7, "school": "Zavala Elementary" }
+  ],
+  "work": {
+    "commute_mode": "car",
+    "commute_route_keywords": ["I-35", "downtown"],
+    "sector": "software"
+  },
+  "priorities": [
+    { "topic": "housing_cost", "weight": 0.9 },
+    { "topic": "transit_reliability", "weight": 0.7 },
+    { "topic": "school_quality", "weight": 0.8 },
+    { "topic": "police_accountability", "weight": 0.6 },
+    { "topic": "childcare_access", "weight": 0.5 }
+  ],
+  "anti_priorities": [
+    "dog_parks",
+    "sister_city_proclamations",
+    "ceremonial_proclamations"
+  ],
+  "relevance_slider": "broad",
+  "learned_voice_style": {},
+  "feedback_history": []
+}

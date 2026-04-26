@@ -1,4 +1,4 @@
-export type RelevanceSlider = "strict" | "balanced" | "loose";
+export type RelevanceSlider = "strict" | "balanced" | "broad";
 
 export type CommuteMode = "car" | "bus" | "bike" | "walk" | "remote";
 
