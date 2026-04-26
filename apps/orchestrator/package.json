@@ -15,7 +15,9 @@
     "match": "tsx src/match/match.ts",
     "compose": "tsx src/compose/compose.ts",
     "extract:zoning": "tsx src/vision/extract.ts",
-    "draft": "tsx src/draft/draft.ts"
+    "draft": "tsx src/draft/draft.ts",
+    "email": "tsx src/email/email.ts",
+    "nightly": "tsx src/nightly.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
