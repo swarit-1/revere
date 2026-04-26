@@ -9,7 +9,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Item } from "@revere/shared";
+import type { ConfidenceTier, Item } from "@revere/shared";
 import { CoverHeader } from "./CoverHeader";
 import { BriefingItem } from "./BriefingItem";
 import { EmptyState } from "./EmptyState";
@@ -29,6 +29,11 @@ export interface ItemEnrichment {
   zoningExtraction: ZoningExtraction | null;
   trace: TracePayload | null;
   drafts: DraftRow[];
+  // Session 10: derived display labels. Computed server-side so the
+  // BriefingItem component stays presentational.
+  geographyLabel: string;
+  bodyLabel: string | null;
+  confidence: ConfidenceTier;
 }
 
 interface Props {
@@ -68,7 +73,9 @@ export function BriefingView({ payload, briefingDate, enrichmentsByItemId }: Pro
               item={it}
               index={idx}
               meetingDate={briefingDate}
-              councilDistrict={enrichment.item.location?.council_district ?? null}
+              geographyLabel={enrichment.geographyLabel}
+              bodyLabel={enrichment.bodyLabel}
+              confidence={enrichment.confidence}
               itemType={enrichment.item.type}
               itemContext={enrichment.itemContext}
               hasDrafts={enrichment.drafts.length > 0}

@@ -7,10 +7,12 @@
 import { notFound } from "next/navigation";
 import type { Item, VerificationReport } from "@revere/shared";
 import { supabaseAdmin } from "@/lib/supabase/admin";
+import { buildGeographyLabel, deriveConfidenceTier, jurisdictionId } from "@revere/shared";
 import { loadLatestBriefing } from "@/lib/queries/briefing";
 import { loadZoningExtractionWithAdmin } from "@/lib/queries/zoning-extraction";
 import { loadTraceWithAdmin } from "@/lib/queries/trace";
 import { loadDraftsWithAdmin } from "@/lib/queries/drafts";
+import { lookupJurisdiction } from "@/lib/jurisdictions";
 import { pickSourceProof } from "@/lib/source-proof";
 import { BriefingView, type ItemEnrichment } from "@/components/briefing/BriefingView";
 import { EmptyState } from "@/components/briefing/EmptyState";
@@ -71,7 +73,25 @@ export default async function DemoPage({
     const zoningExtraction = extractionByCid.get(r.candidate_item_id) ?? null;
     const trace = traceByCid.get(r.candidate_item_id) ?? null;
     const drafts = draftsByCid.get(r.candidate_item_id) ?? [];
-    enrichmentsByItemId[item.id] = { item, proof, itemContext, zoningExtraction, trace, drafts };
+    const jx = lookupJurisdiction(item.jurisdiction);
+    const geographyLabel = buildGeographyLabel({
+      level: jx.level,
+      jurisdiction_id: jurisdictionId(jx.id),
+      location: item.location ?? null,
+    });
+    const bodyLabel = jx.id === "austin-city-council" ? null : jx.short_name;
+    const confidence = deriveConfidenceTier(r.verification_reports.report.coverage);
+    enrichmentsByItemId[item.id] = {
+      item,
+      proof,
+      itemContext,
+      zoningExtraction,
+      trace,
+      drafts,
+      geographyLabel,
+      bodyLabel,
+      confidence,
+    };
   }
 
   return (

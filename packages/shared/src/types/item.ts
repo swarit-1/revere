@@ -1,8 +1,13 @@
 // Mirror of .claude/skills/jurisdictions/austin-city-council/output-schemas/item.json.
 // Hand-written; drift between schema and type is caught by
 // packages/shared/test/schema-drift.test.ts.
+//
+// Jurisdiction was once a literal "austin-city-council" — now string,
+// because real ingest paths cross municipal/school/state/federal. The
+// `RecordKind` discriminator (in types/government.ts) lets the UI
+// branch on governance vs election items without a runtime type guard.
 
-export type Jurisdiction = "austin-city-council";
+export type Jurisdiction = string;
 
 export type ItemType =
   | "motion"
@@ -92,6 +97,10 @@ export interface VideoRef {
 export interface Item {
   id: string;
   jurisdiction: Jurisdiction;
+  // record_kind discriminates governance vs election. Defaults to
+  // "governance" if missing — keeps v1-v5 candidate_items rows
+  // backward-compatible.
+  record_kind?: "governance" | "election";
   meeting_id: number;
   meeting_date: string;
   legistar_item_id: number;

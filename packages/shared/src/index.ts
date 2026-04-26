@@ -3,4 +3,7 @@ export * from "./types/item.js";
 export * from "./types/relevance-score.js";
 export * from "./types/verification-report.js";
 export * from "./types/draft.js";
+export * from "./types/government.js";
+export * from "./types/election.js";
+export * from "./types/representation.js";
 export * from "./source-hash.js";

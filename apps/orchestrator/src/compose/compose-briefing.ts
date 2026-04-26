@@ -179,8 +179,12 @@ export async function compose(args: ComposeArgs): Promise<ComposeResult> {
     generated_at,
   });
 
-  // Update briefing_items.rank for each surfaced item per the composed order.
-  await updateRanks(out.items);
+  // Update briefing_items.rank scoped to (user_id, briefing_date,
+  // candidate_item_id). The earlier version filtered on
+  // candidate_item_id alone, which bled rank values across users +
+  // dates whenever two briefings shared a candidate. Bug captured in
+  // the multi-jurisdiction expansion brief.
+  await updateRanks(out.items, args.user_id, args.briefing_date);
 
   return {
     briefingId: id,
@@ -190,13 +194,19 @@ export async function compose(args: ComposeArgs): Promise<ComposeResult> {
   };
 }
 
-async function updateRanks(items: BriefingPayloadItem[]): Promise<void> {
+async function updateRanks(
+  items: BriefingPayloadItem[],
+  user_id: string,
+  briefing_date: string,
+): Promise<void> {
   const sb = supabase();
   for (const it of items) {
     await sb
       .from("briefing_items")
       .update({ rank: it.rank })
-      .eq("candidate_item_id", it.candidate_item_id);
+      .eq("candidate_item_id", it.candidate_item_id)
+      .eq("user_id", user_id)
+      .eq("briefing_date", briefing_date);
   }
 }
 

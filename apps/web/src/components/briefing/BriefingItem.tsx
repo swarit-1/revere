@@ -4,21 +4,29 @@
 // receipt, not editorial paraphrase.
 //
 // Session 9 motion pass: each item fades up with a stagger driven by
-// `index`. The CTA buttons get a hairline that draws across on hover
-// instead of a static underline — same vermilion, more intentional.
+// `index`.
+//
+// Session 10 multi-jurisdiction pass: geographyLabel + bodyLabel +
+// confidence come in as props (derived by the page), not hardcoded
+// "D3" / "Citywide" / "High confidence". Same component renders city,
+// school, state, federal, and election items uniformly.
 
 import type { BriefingPayloadItem } from "@/lib/queries/briefing";
+import type { ConfidenceTier } from "@revere/shared";
+import { CONFIDENCE_LABELS } from "@revere/shared";
 
 interface Props {
   item: BriefingPayloadItem;
   meetingDate: string;
-  councilDistrict: number | null;
+  geographyLabel: string;
   itemType: string;
+  bodyLabel?: string | null;
   onSourceClick: (itemId: string) => void;
   onTraceClick: (itemId: string) => void;
   onDraftClick: (itemId: string) => void;
   hasDrafts: boolean;
   itemContext?: string | null; // e.g. "Imminent vote" if action_window_boost was 1
+  confidence?: ConfidenceTier;
   index?: number; // for stagger
 }
 
@@ -29,21 +37,27 @@ function formatMeetingDate(iso: string): string {
   return `${months[(m ?? 1) - 1]} ${d}`;
 }
 
+const CONFIDENCE_DOT: Record<ConfidenceTier, string> = {
+  high: "bg-district",
+  medium: "bg-district/60",
+  low: "bg-vermilion/60",
+  unknown: "bg-district/30",
+};
+
 export function BriefingItem({
   item,
   meetingDate,
-  councilDistrict,
+  geographyLabel,
   itemType,
+  bodyLabel,
   onSourceClick,
   onTraceClick,
   onDraftClick,
   hasDrafts,
   itemContext,
+  confidence = "high",
   index = 0,
 }: Props) {
-  const districtLabel = councilDistrict
-    ? `D${councilDistrict}`
-    : "Citywide";
   const typeLabel = itemType[0]?.toUpperCase() + itemType.slice(1);
 
   // 800ms initial offset (cover header + rule finish around there) +
@@ -56,7 +70,8 @@ export function BriefingItem({
       style={{ animationDelay: `${delayMs}ms` }}
     >
       <p className="text-metadata uppercase text-district">
-        {districtLabel} · {formatMeetingDate(meetingDate)} · {typeLabel}
+        {bodyLabel ? <>{bodyLabel} · </> : null}
+        {geographyLabel} · {formatMeetingDate(meetingDate)} · {typeLabel}
         {itemContext ? (
           <>
             {" · "}
@@ -112,9 +127,9 @@ export function BriefingItem({
         <span className="flex items-center gap-2 text-district">
           <span
             aria-hidden
-            className="inline-block h-1.5 w-1.5 rounded-full bg-district"
+            className={`inline-block h-1.5 w-1.5 rounded-full ${CONFIDENCE_DOT[confidence]}`}
           />
-          High confidence
+          {CONFIDENCE_LABELS[confidence]}
         </span>
       </div>
     </article>
