@@ -37,12 +37,12 @@ export function TraceModal({ open, onClose, headline, item, trace }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/40 px-4 py-12 sm:py-16"
+      className="fixed inset-0 z-50 flex animate-backdrop-in items-start justify-center overflow-y-auto bg-ink/45 px-4 py-12 backdrop-blur-md sm:py-16"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="relative w-full max-w-xl bg-cream"
+        className="relative w-full max-w-xl animate-modal-in bg-cream shadow-[0_30px_80px_-20px_rgba(26,26,23,0.45)]"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"

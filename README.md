@@ -50,10 +50,11 @@ read the same meeting. They get *different briefings*, with
 
 | Surface | Shot |
 |---|---|
-| Briefing list (Jason) | [`docs/verification/t-26-jason-briefing-1280.png`](docs/verification/t-26-jason-briefing-1280.png) |
-| Source-proof modal (parcel highlight on 26-1501) | [`docs/verification/t-26-modal-1280.png`](docs/verification/t-26-modal-1280.png) |
-| Trace modal (Jason × 26-1501) | [`docs/verification/t-27-jason-trace-1280.png`](docs/verification/t-27-jason-trace-1280.png) |
-| Draft modal (Jason × 26-1501, three variants) | [`docs/verification/t-22-jason-draft-1280.png`](docs/verification/t-22-jason-draft-1280.png) |
+| Landing (newspaper masthead) | [`docs/verification/t-31-landing-1280.png`](docs/verification/t-31-landing-1280.png) |
+| Briefing list (Jason) | [`docs/verification/t-31-briefing-jason-1280.png`](docs/verification/t-31-briefing-jason-1280.png) |
+| Source-proof modal (parcel highlight on 26-1501) | [`docs/verification/t-31-modal-source-1280.png`](docs/verification/t-31-modal-source-1280.png) |
+| Trace modal (Jason × 26-1501) | [`docs/verification/t-31-modal-trace-1280.png`](docs/verification/t-31-modal-trace-1280.png) |
+| Draft modal (Jason × 26-1501, three variants) | [`docs/verification/t-31-modal-draft-1280.png`](docs/verification/t-31-modal-draft-1280.png) |
 | Email render (Maya morning briefing) | [`docs/verification/email-renders/maya-render.png`](docs/verification/email-renders/maya-render.png) |
 | Demo cards | [hook](docs/verification/t-32-card-hook.png) · [two-people](docs/verification/t-32-card-two-people.png) · [closing](docs/verification/t-32-card-closing.png) |
 

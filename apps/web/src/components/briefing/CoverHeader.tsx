@@ -2,6 +2,10 @@
 //   "Revere · Thu Apr 9 · 5 items for you"
 // Vermilion is reserved for the date numerals + the item-count numeral.
 // Nothing else on the cover should pull the accent color.
+//
+// Session 9 motion pass: kicker fades down, headline fades up, then
+// the divider draws across. Numerals are emphasised inside the
+// headline as before.
 
 import type { ReactNode } from "react";
 
@@ -51,13 +55,17 @@ function emphasizeNumerals(s: string): ReactNode[] {
 
 export function CoverHeader({ raw }: Props) {
   return (
-    <header className="mb-16 mt-24 border-b border-whisper pb-12">
-      <p className="text-label uppercase text-district">
+    <header className="mb-16 mt-24 pb-12">
+      <p className="animate-fade-down text-label uppercase text-district">
         The morning briefing
       </p>
-      <h1 className="mt-6 font-serif text-cover font-bold tracking-tighter text-ink">
+      <h1 className="mt-6 animate-fade-up-lg font-serif text-cover font-bold tracking-tighter text-ink delay-200">
         {emphasizeNumerals(raw)}
       </h1>
+      <div
+        aria-hidden
+        className="mt-12 h-[2px] w-full origin-left animate-draw-rule bg-gradient-to-r from-vermilion via-vermilion/60 to-transparent delay-700"
+      />
     </header>
   );
 }

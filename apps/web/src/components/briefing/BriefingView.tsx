@@ -59,13 +59,14 @@ export function BriefingView({ payload, briefingDate, enrichmentsByItemId }: Pro
     <main className="mx-auto max-w-2xl px-6 pb-24">
       <CoverHeader raw={payload.cover_header} />
       <div>
-        {payload.items.map((it) => {
+        {payload.items.map((it, idx) => {
           const enrichment = enrichmentsByItemId[it.item_id];
           if (!enrichment) return null;
           return (
             <BriefingItem
               key={it.item_id}
               item={it}
+              index={idx}
               meetingDate={briefingDate}
               councilDistrict={enrichment.item.location?.council_district ?? null}
               itemType={enrichment.item.type}

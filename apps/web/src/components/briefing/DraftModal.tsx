@@ -51,12 +51,12 @@ export function DraftModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-ink/40 px-4 py-12 sm:py-16"
+      className="fixed inset-0 z-50 flex animate-backdrop-in items-start justify-center overflow-y-auto bg-ink/45 px-4 py-12 backdrop-blur-md sm:py-16"
       onClick={onClose}
       role="presentation"
     >
       <div
-        className="relative w-full max-w-5xl bg-cream"
+        className="relative w-full max-w-5xl animate-modal-in bg-cream shadow-[0_30px_80px_-20px_rgba(26,26,23,0.45)]"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
@@ -94,10 +94,11 @@ export function DraftModal({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3">
-            {drafts.map((d) => (
+            {drafts.map((d, i) => (
               <DraftColumn
                 key={d.id}
                 draft={d}
+                index={i}
                 itemFileId={itemFileId}
                 councilDistrict={councilDistrict}
               />
@@ -111,10 +112,12 @@ export function DraftModal({
 
 function DraftColumn({
   draft,
+  index,
   itemFileId,
   councilDistrict,
 }: {
   draft: DraftRow;
+  index: number;
   itemFileId: string;
   councilDistrict: number | null;
 }) {
@@ -147,7 +150,10 @@ function DraftColumn({
   const wordCount = draft.final_text.split(/\s+/).filter(Boolean).length;
 
   return (
-    <div className="border-b border-whisper px-8 py-8 last:border-b-0 md:border-b-0 md:[&:not(:last-child)]:border-r">
+    <div
+      className="animate-fade-up border-b border-whisper px-8 py-8 last:border-b-0 md:border-b-0 md:[&:not(:last-child)]:border-r"
+      style={{ animationDelay: `${200 + index * 120}ms` }}
+    >
       <p className="text-label uppercase tracking-[0.12em] text-district">
         {draft.voice} · {wordCount} words
       </p>

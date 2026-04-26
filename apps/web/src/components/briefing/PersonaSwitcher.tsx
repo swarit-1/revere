@@ -41,9 +41,9 @@ export function PersonaSwitcher({ current }: Props) {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 flex flex-col items-end gap-2">
+    <div className="fixed bottom-6 right-6 flex animate-fade-up flex-col items-end gap-2 delay-1000">
       {error ? (
-        <p className="border border-vermilion bg-cream px-3 py-1 text-label uppercase tracking-[0.12em] text-vermilion">
+        <p className="animate-fade-down border border-vermilion bg-cream px-3 py-1 text-label uppercase tracking-[0.12em] text-vermilion">
           {error}
         </p>
       ) : null}
@@ -51,12 +51,23 @@ export function PersonaSwitcher({ current }: Props) {
         type="button"
         onClick={handleSwitch}
         disabled={pending}
-        className="border border-ink bg-cream px-4 py-2 text-label uppercase tracking-[0.12em] text-ink hover:bg-ink hover:text-cream disabled:opacity-50"
+        className="group relative overflow-hidden border border-ink bg-cream px-4 py-2 text-label uppercase tracking-[0.12em] text-ink shadow-[0_8px_24px_-12px_rgba(26,26,23,0.35)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_32px_-12px_rgba(200,51,31,0.35)] disabled:opacity-50"
       >
-        <span className="text-district">switch · </span>
-        <span>fp={current}</span>
-        <span className="px-2 text-district">→</span>
-        <span>{target}</span>
+        <span className="relative z-10 transition-colors duration-300 group-hover:text-cream">
+          <span className="text-district transition-colors duration-300 group-hover:text-cream/60">
+            switch ·{" "}
+          </span>
+          <span>fp={current}</span>
+          <span className="px-2 text-district transition-colors duration-300 group-hover:text-cream/60">
+            →
+          </span>
+          <span>{target}</span>
+        </span>
+        {/* Sliding fill on hover. */}
+        <span
+          aria-hidden
+          className="absolute inset-0 origin-left scale-x-0 bg-ink transition-transform duration-300 ease-out group-hover:scale-x-100"
+        />
       </button>
     </div>
   );

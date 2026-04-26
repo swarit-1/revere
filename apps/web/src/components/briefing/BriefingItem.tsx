@@ -2,6 +2,10 @@
 // Visual anatomy locked in docs/plans/session-6-briefing-ui.md.
 // The why_this is rendered verbatim in JetBrains Mono — that's the trust
 // receipt, not editorial paraphrase.
+//
+// Session 9 motion pass: each item fades up with a stagger driven by
+// `index`. The CTA buttons get a hairline that draws across on hover
+// instead of a static underline — same vermilion, more intentional.
 
 import type { BriefingPayloadItem } from "@/lib/queries/briefing";
 
@@ -15,6 +19,7 @@ interface Props {
   onDraftClick: (itemId: string) => void;
   hasDrafts: boolean;
   itemContext?: string | null; // e.g. "Imminent vote" if action_window_boost was 1
+  index?: number; // for stagger
 }
 
 function formatMeetingDate(iso: string): string {
@@ -34,24 +39,37 @@ export function BriefingItem({
   onDraftClick,
   hasDrafts,
   itemContext,
+  index = 0,
 }: Props) {
   const districtLabel = councilDistrict
     ? `D${councilDistrict}`
     : "Citywide";
   const typeLabel = itemType[0]?.toUpperCase() + itemType.slice(1);
 
+  // 800ms initial offset (cover header + rule finish around there) +
+  // 100ms per item. Caps at 1700ms for #9 so late items aren't laggy.
+  const delayMs = Math.min(800 + index * 100, 1700);
+
   return (
-    <article className="border-b border-whisper py-8 last:border-b-0">
+    <article
+      className="group animate-fade-up border-b border-whisper py-8 last:border-b-0"
+      style={{ animationDelay: `${delayMs}ms` }}
+    >
       <p className="text-metadata uppercase text-district">
         {districtLabel} · {formatMeetingDate(meetingDate)} · {typeLabel}
-        {itemContext ? <> · {itemContext}</> : null}
+        {itemContext ? (
+          <>
+            {" · "}
+            <span className="text-vermilion">{itemContext}</span>
+          </>
+        ) : null}
       </p>
 
-      <h2 className="mt-4 font-serif text-headline font-semibold leading-[1.15] text-ink">
+      <h2 className="mt-4 font-serif text-headline font-semibold leading-[1.15] text-ink transition-colors duration-300 group-hover:text-ink/90">
         {item.headline}
       </h2>
 
-      <div className="mt-6">
+      <div className="mt-6 border-l-2 border-district/30 pl-4 transition-colors duration-300 group-hover:border-vermilion">
         <p className="text-label uppercase tracking-[0.12em] text-district">
           Why this matters to you
         </p>
@@ -68,14 +86,16 @@ export function BriefingItem({
         <button
           type="button"
           onClick={() => onSourceClick(item.item_id)}
-          className="border-b border-vermilion pb-px text-ink hover:text-vermilion"
+          className="link-draw text-ink transition-colors duration-200 hover:text-vermilion"
+          data-vermilion
         >
           See source ↗
         </button>
         <button
           type="button"
           onClick={() => onTraceClick(item.item_id)}
-          className="border-b border-vermilion pb-px text-ink hover:text-vermilion"
+          className="link-draw text-ink transition-colors duration-200 hover:text-vermilion"
+          data-vermilion
         >
           Why am I seeing this? ↗
         </button>
@@ -83,13 +103,17 @@ export function BriefingItem({
           <button
             type="button"
             onClick={() => onDraftClick(item.item_id)}
-            className="border-b border-vermilion pb-px text-ink hover:text-vermilion"
+            className="link-draw text-ink transition-colors duration-200 hover:text-vermilion"
+            data-vermilion
           >
             Draft a reply ↗
           </button>
         ) : null}
         <span className="flex items-center gap-2 text-district">
-          <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-district" />
+          <span
+            aria-hidden
+            className="inline-block h-1.5 w-1.5 rounded-full bg-district"
+          />
           High confidence
         </span>
       </div>
