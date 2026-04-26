@@ -40,6 +40,8 @@ interface Props {
   payload: BriefingPayload;
   briefingDate: string;
   enrichmentsByItemId: Record<string, ItemEnrichment>;
+  ballotHref?: string;
+  ballotRaceCount?: number;
 }
 
 type OpenModal =
@@ -48,7 +50,13 @@ type OpenModal =
   | { kind: "draft"; itemId: string }
   | null;
 
-export function BriefingView({ payload, briefingDate, enrichmentsByItemId }: Props) {
+export function BriefingView({
+  payload,
+  briefingDate,
+  enrichmentsByItemId,
+  ballotHref,
+  ballotRaceCount,
+}: Props) {
   const [openModal, setOpenModal] = useState<OpenModal>(null);
 
   if (payload.items.length === 0) {
@@ -91,6 +99,27 @@ export function BriefingView({ payload, briefingDate, enrichmentsByItemId }: Pro
         {payload.coverage.surfaced} surfaced of {payload.coverage.verified} verified
         {" "}/ {payload.coverage.candidate_items_considered} considered
       </p>
+
+      {ballotHref ? (
+        <a
+          href={ballotHref}
+          className="group mt-10 flex flex-col items-start gap-2 border border-ink bg-ink px-6 py-5 text-cream transition-all duration-300 hover:-translate-y-0.5 hover:bg-vermilion-deep sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div>
+            <p className="font-mono text-label uppercase tracking-[0.18em] text-cream/60">
+              Your ballot
+            </p>
+            <p className="mt-1 font-serif text-headline-sm font-semibold leading-tight text-cream">
+              {ballotRaceCount && ballotRaceCount > 0
+                ? `${ballotRaceCount} race${ballotRaceCount === 1 ? "" : "s"} on your ballot`
+                : "See races on your ballot"}
+            </p>
+          </div>
+          <span className="font-mono text-label uppercase tracking-[0.18em] transition-transform duration-300 group-hover:translate-x-1">
+            Open ↗
+          </span>
+        </a>
+      ) : null}
 
       {openModal?.kind === "source" && openEnrichment && openPayloadItem ? (
         <SourceProofModal

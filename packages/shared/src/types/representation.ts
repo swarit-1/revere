@@ -2,14 +2,14 @@
 // in shared so both apps/web and apps/orchestrator can call without
 // duplication.
 
-import type { Fingerprint } from "./fingerprint.js";
-import type { ItemLocation } from "./item.js";
+import type { Fingerprint } from "./fingerprint";
+import type { ItemLocation } from "./item";
 import type {
   GovernmentLevel,
   JurisdictionId,
   RepresentationEntry,
-} from "./government.js";
-import { jurisdictionId } from "./government.js";
+} from "./government";
+import { jurisdictionId } from "./government";
 
 // One-line geography label for a generic record. Replaces the
 // hardcoded "D3" / "Citywide" rendering in the briefing UI.

@@ -17,6 +17,8 @@
     "extract:zoning": "tsx src/vision/extract.ts",
     "draft": "tsx src/draft/draft.ts",
     "email": "tsx src/email/email.ts",
+    "elections:seed": "tsx src/elections/seed.ts",
+    "elections:score": "tsx src/elections/score-cli.ts",
     "nightly": "tsx src/nightly.ts"
   },
   "dependencies": {

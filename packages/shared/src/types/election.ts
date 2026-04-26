@@ -10,7 +10,7 @@ import type {
   JurisdictionId,
   PromiseAuthority,
   PromiseSpecificity,
-} from "./government.js";
+} from "./government";
 
 // One race on someone's ballot. Identified by `id` (slug — "austin-d3-2026"
 // or "txhd-51-2026"). district_label uses the same builder as governance.

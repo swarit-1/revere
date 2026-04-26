@@ -118,11 +118,23 @@ async function BriefingContent({ fingerprintUserId }: { fingerprintUserId: strin
     };
   }
 
+  // Surface a ballot CTA when there are election items in this user's
+  // election briefing_items rows. Cheap admin-side count.
+  const ballotCount = await admin
+    .from("briefing_items")
+    .select("entity_id", { count: "exact", head: true })
+    .eq("user_id", fingerprintUserId)
+    .eq("briefing_date", briefing.briefing_date)
+    .eq("record_kind", "election")
+    .eq("entity_type", "race");
+
   return (
     <BriefingView
       payload={briefing.payload}
       briefingDate={briefing.briefing_date}
       enrichmentsByItemId={enrichmentsByItemId}
+      ballotHref="/ballot"
+      ballotRaceCount={ballotCount.count ?? 0}
     />
   );
 }

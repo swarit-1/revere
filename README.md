@@ -14,18 +14,21 @@ Hackathon submission · Built with Claude Opus 4.7 · April 2026.
 ## What it does
 
 The same public record means different things to different people.
-On Apr 9 2026 the Austin City Council met for four hours and 56
-agenda items. Revere ingests the meeting, verifies each claim against
-the original source, scores every item against each user's civic
-fingerprint, composes a per-person briefing, and pre-bakes three
+Revere ingests every governing body that touches the user — city,
+school district, county, state, federal — verifies each claim
+against the original source, scores everything against the user's
+civic fingerprint, composes a per-person briefing, pre-bakes three
 adversarially-refined draft variants for items where action makes
-sense.
+sense, and (in election mode) shows races on the user's ballot with
+verified candidate promises and a "Can they actually do that?"
+authority classification.
 
 Two demo personas — **Maya** (East Austin renter, parent, drives
 I-35) and **Jason** (East Austin homeowner, runs a coffee shop on
-East 6th, walks to work) — both live in the same district and both
-read the same meeting. They get *different briefings*, with
-*different reasons*, and *different drafts*. That gap is the product.
+East 6th, walks to work) — both live in the same district. They
+get *different briefings*, with *different reasons*, *different
+drafts*, and *different ballot orderings* for the same races.
+That gap is the product.
 
 ## Trust surfaces
 
@@ -45,6 +48,18 @@ read the same meeting. They get *different briefings*, with
   opposing constituent, and a press shop attacking it sequentially.
   Refiner's accept-vs-defend response is persisted alongside the
   final text.
+- **"Can they actually do that?"** — every candidate promise on
+  /ballot carries one of five authority tiers (`direct_authority`,
+  `partial_authority`, `indirect_influence`, `outside_office_scope`,
+  `too_vague_to_assess`) with a sourced rationale tying back to the
+  office's charter. Non-judgmental — partial and indirect are common
+  and not necessarily bad. It's a trust signal, not a verdict.
+- **Conversational onboarding** — Opus 4.7 conducts a 10-14 turn
+  interview that builds the user's civic fingerprint with hard
+  guardrails (no precise address, no partisan reframing, no policy
+  advice, Austin-only in v1). Tested by 4 scripted scenarios
+  including house-number leakage, partisan reframing, and
+  out-of-jurisdiction refusal.
 
 ## Screenshots
 
@@ -55,6 +70,8 @@ read the same meeting. They get *different briefings*, with
 | Source-proof modal (parcel highlight on 26-1501) | [`docs/verification/t-31-modal-source-1280.png`](docs/verification/t-31-modal-source-1280.png) |
 | Trace modal (Jason × 26-1501) | [`docs/verification/t-31-modal-trace-1280.png`](docs/verification/t-31-modal-trace-1280.png) |
 | Draft modal (Jason × 26-1501, three variants) | [`docs/verification/t-31-modal-draft-1280.png`](docs/verification/t-31-modal-draft-1280.png) |
+| Ballot — Maya (3 races) | [`docs/verification/t-37-ballot-maya.png`](docs/verification/t-37-ballot-maya.png) |
+| Ballot — Jason (3 races, different ordering) | [`docs/verification/t-37-ballot-jason.png`](docs/verification/t-37-ballot-jason.png) |
 | Email render (Maya morning briefing) | [`docs/verification/email-renders/maya-render.png`](docs/verification/email-renders/maya-render.png) |
 | Demo cards | [hook](docs/verification/t-32-card-hook.png) · [two-people](docs/verification/t-32-card-two-people.png) · [closing](docs/verification/t-32-card-closing.png) |
 
@@ -117,7 +134,7 @@ APP_URL=http://localhost:3000   # optional
 | T-04 Repo skeleton | ✓ |
 | T-05–T-10 Skill packs | ✓ |
 | T-11 Austin scraper | ✓ |
-| T-12 Schema (v1–v5) | ✓ |
+| T-12 Schema (v1–v6) | ✓ |
 | T-13 Orchestrator | ✓ |
 | T-15 Verification loop | ✓ |
 | T-17 Fingerprint matcher | ✓ |
@@ -131,16 +148,20 @@ APP_URL=http://localhost:3000   # optional
 | T-26 Parcel-highlight modal | ✓ |
 | T-27 Trace modal | ✓ |
 | T-28 Persona switcher | ✓ |
+| T-29 Conversational onboarding (text) | ✓ (4/4 guardrail tests pass) |
+| T-31 Motion + cinematic polish | ✓ |
 | T-32 Pre-recorded demo video | ✓ |
 | T-33 Three rehearsals ≤ 2:05 | ✓ |
+| T-37 Election Briefing / Your Ballot | ✓ (3 races, 6 candidates, 30 promises seeded) |
+| Multi-jurisdiction generalization | ✓ (city + school + state + scaffolds for county/federal) |
 | README + submission blurb | ✓ |
 | **Deferred** | |
-| T-14 AISD + Texas-Lege orchestrators | skill packs only |
-| T-29 Voice onboarding | text seeding via SQL only |
+| T-14 AISD + Texas-Lege live ingestion | skill packs + adapter scaffolds; election seed is fixture |
+| T-29.5 Voice onboarding (Deepgram + ElevenLabs) | text fallback ships per PRD §24 R6 |
 | T-30 User testimonials | out of agent scope |
 | T-34 .docx ordinance redlines | stretch |
 | T-35 Pixel-level chart transcription | stretch |
-| T-37 Election mode teaser | stretch |
+| T-37.5 Live election ingestion adapters | seed only |
 
 ## Design rationale
 

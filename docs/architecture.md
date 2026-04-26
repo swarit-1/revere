@@ -187,6 +187,29 @@ them via the admin client per item to render the modals.
 `drafts`. Three rows per draft request — one per voice. Service-role
 only.
 
+### v6 — `20260426170000_v6_elections.sql`
+
+Multi-jurisdiction + election expansion (Session 10).
+
+- New tables: `election_races`, `candidates`, `candidate_promises`.
+  All RLS-enabled, service-role-only — same posture as
+  `candidate_items` / `verification_reports`.
+- `jurisdictions.level` + `.state` columns; seeded `travis-county`
+  and `us-congress` rows so the abstraction surface matches the
+  product framing.
+- `briefings.mode` discriminator (`'governance'` | `'election'` |
+  `'mixed'`, default `'governance'`).
+- `briefing_items` generalization: new `record_kind` + `entity_type`
+  + `entity_id` columns. Existing rows default to
+  `record_kind='governance'` (FK still on `candidate_item_id`).
+  Election rows reference races, candidates, or promises by string
+  id; `candidate_item_id` and `verification_report_id` are nullable
+  for those rows. A check constraint enforces shape per
+  `record_kind`.
+- `agent_sessions` tightening: `subject_type`, `subject_id`,
+  `user_id`, `briefing_date` columns for multi-jurisdiction
+  trace scoping.
+
 ## Model routing
 
 | Workload | Model | Notes |
@@ -217,7 +240,7 @@ only.
 
 ## Trust surfaces
 
-The PRD's "trust is the product" thesis lands on three concrete
+The PRD's "trust is the product" thesis lands on five concrete
 surfaces (in order of demo prominence):
 
 1. **Source-proof modal (T-26)** — every briefing item has a
@@ -236,9 +259,20 @@ surfaces (in order of demo prominence):
    opposing_constituent · press_shop), each with severity-tagged
    issues + the refiner's accept-vs-defend response. The DraftModal
    surfaces this under a "What the critics caught ↗" toggle.
+4. **Authority classification on every promise (T-37)** — five-tier
+   `direct_authority` / `partial_authority` / `indirect_influence`
+   / `outside_office_scope` / `too_vague_to_assess`, each with a
+   sourced rationale tying back to the office's charter. Reframes
+   "what they said" as "what they can do." Non-judgmental — partial
+   and indirect are common, not necessarily bad.
+5. **Conversational onboarding (T-29)** — the fingerprint is built
+   through a 10-14 turn Opus 4.7 interview with hard guardrails:
+   no precise address, no partisan reframing, no policy advice,
+   non-Austin refusal. Server-side replicates the guardrails on
+   /api/onboarding/finalize.
 
-All three follow the same editorial principle: **prose first, JSON one
-click away**. No tabs, no accordion, no dashboards.
+All five follow the same editorial principle: **prose first, JSON
+one click away**. No tabs, no accordion, no dashboards.
 
 ## Visual identity
 
