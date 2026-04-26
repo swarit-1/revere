@@ -68,12 +68,23 @@ export default function Home() {
             </aside>
           </div>
 
-          <nav className="mt-16 flex flex-wrap items-center gap-x-8 gap-y-4 text-body-sm">
+          <nav className="mt-16 flex flex-wrap items-center gap-x-6 gap-y-4 text-body-sm">
+            <Link
+              href="/demo/live"
+              className="group animate-fade-up inline-flex items-center gap-3 border-2 border-vermilion bg-vermilion px-6 py-4 font-mono text-cream shadow-[0_8px_24px_-8px_rgba(200,51,31,0.5)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-vermilion-deep hover:shadow-[0_14px_32px_-10px_rgba(200,51,31,0.7)] delay-1800"
+            >
+              <span aria-hidden className="text-cream/80">▶</span>
+              <span>Run it live — watch every agent</span>
+              <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
+                ↗
+              </span>
+            </Link>
+
             <Link
               href="/demo/hook"
-              className="group animate-fade-up inline-flex items-center gap-3 border border-ink bg-ink px-5 py-3 font-mono text-cream transition-transform duration-300 hover:-translate-y-0.5 hover:bg-vermilion-deep delay-1800"
+              className="group animate-fade-up inline-flex items-center gap-3 border border-ink bg-cream px-5 py-3 font-mono text-ink transition-all duration-300 hover:-translate-y-0.5 hover:bg-ink hover:text-cream delay-1900"
             >
-              <span>Watch the demo</span>
+              <span>Cinematic demo</span>
               <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
                 ↗
               </span>
@@ -84,7 +95,7 @@ export default function Home() {
               className="link-draw animate-fade-up font-mono text-ink delay-2000"
               data-vermilion
             >
-              Open Maya's briefing →
+              Maya →
             </Link>
 
             <Link
@@ -92,7 +103,7 @@ export default function Home() {
               className="link-draw animate-fade-up font-mono text-ink delay-2000"
               data-vermilion
             >
-              Open Jason's briefing →
+              Jason →
             </Link>
 
             <Link
