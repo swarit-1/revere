@@ -1,0 +1,28 @@
+Revere · Thu Apr 9 · 4 items for you
+
+Revere · Thu Apr 9 · 4 items for you
+
+1. Rezoning hearing for 1811 East Cesar Chavez to allow liquor sales
+   Why this matters to you: location.council_district=3 + priorities[small_business_permitting].weight=0.9
+   Public hearing on rezoning 1811 East Cesar Chavez Street from CS-MU-CO-NP to CS-1-CO-NP (commercial-liquor sales). Staff recommends denial of the CS-1-CO-NP request.
+   See source: http://localhost:3000/demo?fp=jason#26-1501
+
+2. Ordinance would suspend Atmos Energy gas rate adjustment
+   Why this matters to you: priorities[property_taxes].weight=0.9
+   Council considers an ordinance to suspend a Gas Reliability Infrastructure Program interim rate adjustment proposed by Atmos Energy Corporation, Mid-Tex Division. No fiscal impact to the city.
+   See source: http://localhost:3000/demo?fp=jason#26-1306
+
+3. Fee waiver for Austin Taiwanese Chamber of Commerce Day at AARC
+   Why this matters to you: priorities[property_taxes].weight=0.9
+   Ordinance waiving or reimbursing certain fees tied to the Austin Taiwanese Chamber of Commerce Day held at the Asian American Resource Center on October 10, 2025.
+   See source: http://localhost:3000/demo?fp=jason#26-1495
+
+4. Downtown Public Improvement District would add 360 Nueces Street
+   Why this matters to you: work.commute_route_keywords overlap + priorities[small_business_permitting].weight=0.9
+   Public hearing and resolution to expand the Austin Downtown Public Improvement District by adding one parcel at 360 Nueces Street, at the property owners' request. No fiscal impact.
+   See source: http://localhost:3000/demo?fp=jason#26-1407
+
+4 surfaced of 37 verified / 56 considered
+
+Open the full briefing: http://localhost:3000/demo?fp=jason
+Revere never autosubmits. You always send the final reply yourself.

@@ -1,0 +1,33 @@
+Revere · Thu Apr 9 · 5 items for you
+
+Revere · Thu Apr 9 · 5 items for you
+
+1. Rezoning hearing for 1811 East Cesar Chavez to allow liquor sales
+   Why this matters to you: location.council_district=3 + priorities[housing_cost].weight=0.9
+   Public hearing on rezoning 1811 East Cesar Chavez Street from CS-MU-CO-NP to CS-1-CO-NP, which would allow liquor sales. Staff recommends denial of the CS-1-CO-NP zoning.
+   See source: http://localhost:3000/demo?fp=maya#26-1501
+
+2. $1.3M contract for wastewater and roadway fixes at low-income residential community
+   Why this matters to you: priorities[housing_cost].weight=0.9
+   Council would authorize a contract with Constructinople, LLC up to $1,300,000 for replacing private wastewater lines and resurfacing roadways at a residential community serving low-income households. Funded by Community Development Block Grant Infrastructure Funds.
+   See source: http://localhost:3000/demo?fp=maya#26-1399
+
+3. Council recesses to convene Austin Housing Finance Corporation board meeting
+   Why this matters to you: priorities[housing_cost].weight=0.9
+   The Mayor will recess the City Council meeting to conduct a Board of Directors' meeting of the Austin Housing Finance Corporation, then reconvene. No fiscal impact.
+   See source: http://localhost:3000/demo?fp=maya#26-1393
+
+4. Accept $7.94M from TxDOT for advanced traffic signal vehicle detection
+   Why this matters to you: priorities[transit_reliability].weight=0.7
+   Budget amendment to accept $7,940,064 from the Texas Department of Transportation to install and integrate advanced traffic signal vehicle detection technology citywide. Requires a $2,481,270 City match available in the Capital Budget.
+   See source: http://localhost:3000/demo?fp=maya#26-1354
+
+5. APD seeks $114K state grant for Peace Officer Mental Health Project
+   Why this matters to you: priorities[police_accountability].weight=0.6
+   Resolution to apply for and accept $114,755 from the Governor's Criminal Justice Division to implement the Austin Police Department's Peace Officer Mental Health Project. No City match required.
+   See source: http://localhost:3000/demo?fp=maya#26-1426
+
+8 surfaced of 37 verified / 56 considered
+
+Open the full briefing: http://localhost:3000/demo?fp=maya
+Revere never autosubmits. You always send the final reply yourself.
