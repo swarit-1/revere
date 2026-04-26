@@ -11,6 +11,7 @@ interface Props {
   councilDistrict: number | null;
   itemType: string;
   onSourceClick: (itemId: string) => void;
+  onTraceClick: (itemId: string) => void;
   itemContext?: string | null; // e.g. "Imminent vote" if action_window_boost was 1
 }
 
@@ -27,6 +28,7 @@ export function BriefingItem({
   councilDistrict,
   itemType,
   onSourceClick,
+  onTraceClick,
   itemContext,
 }: Props) {
   const districtLabel = councilDistrict
@@ -58,13 +60,20 @@ export function BriefingItem({
         {item.what_happened}
       </p>
 
-      <div className="mt-6 flex items-center gap-6 text-body-sm">
+      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3 text-body-sm">
         <button
           type="button"
           onClick={() => onSourceClick(item.item_id)}
           className="border-b border-vermilion pb-px text-ink hover:text-vermilion"
         >
           See source ↗
+        </button>
+        <button
+          type="button"
+          onClick={() => onTraceClick(item.item_id)}
+          className="border-b border-vermilion pb-px text-ink hover:text-vermilion"
+        >
+          Why am I seeing this? ↗
         </button>
         <span className="flex items-center gap-2 text-district">
           <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-district" />

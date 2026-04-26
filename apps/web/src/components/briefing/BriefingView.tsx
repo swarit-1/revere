@@ -1,6 +1,10 @@
-// Client component that owns the source-proof modal state on top of the
+// Client component that owns the modal state on top of the
 // server-rendered briefing list. Receives all data pre-fetched server-side
-// so the modal opens instantly without a client round-trip.
+// so modals open instantly without a client round-trip.
+//
+// Modal-state is a single discriminator — only one of source / trace can
+// be open at a time. Clicking the second button while the first is open
+// transitions cleanly without overlap.
 
 "use client";
 
@@ -10,15 +14,18 @@ import { CoverHeader } from "./CoverHeader";
 import { BriefingItem } from "./BriefingItem";
 import { EmptyState } from "./EmptyState";
 import { SourceProofModal } from "./SourceProofModal";
+import { TraceModal } from "./TraceModal";
 import type { BriefingPayload, BriefingPayloadItem } from "@/lib/queries/briefing";
 import type { SourceProofClaim } from "@/lib/source-proof";
 import type { ZoningExtraction } from "@/lib/queries/zoning-extraction";
+import type { TracePayload } from "@/lib/queries/trace";
 
 export interface ItemEnrichment {
   item: Item;
   proof: SourceProofClaim | null;
   itemContext: string | null;
   zoningExtraction: ZoningExtraction | null;
+  trace: TracePayload | null;
 }
 
 interface Props {
@@ -27,16 +34,21 @@ interface Props {
   enrichmentsByItemId: Record<string, ItemEnrichment>;
 }
 
+type OpenModal =
+  | { kind: "source"; itemId: string }
+  | { kind: "trace"; itemId: string }
+  | null;
+
 export function BriefingView({ payload, briefingDate, enrichmentsByItemId }: Props) {
-  const [openItemId, setOpenItemId] = useState<string | null>(null);
+  const [openModal, setOpenModal] = useState<OpenModal>(null);
 
   if (payload.items.length === 0) {
     return <EmptyState meetingDate={briefingDate} />;
   }
 
-  const openItem = openItemId ? enrichmentsByItemId[openItemId] : null;
-  const openPayloadItem: BriefingPayloadItem | null = openItemId
-    ? payload.items.find((i) => i.item_id === openItemId) ?? null
+  const openEnrichment = openModal ? enrichmentsByItemId[openModal.itemId] ?? null : null;
+  const openPayloadItem: BriefingPayloadItem | null = openModal
+    ? payload.items.find((i) => i.item_id === openModal.itemId) ?? null
     : null;
 
   return (
@@ -54,7 +66,8 @@ export function BriefingView({ payload, briefingDate, enrichmentsByItemId }: Pro
               councilDistrict={enrichment.item.location?.council_district ?? null}
               itemType={enrichment.item.type}
               itemContext={enrichment.itemContext}
-              onSourceClick={setOpenItemId}
+              onSourceClick={(id) => setOpenModal({ kind: "source", itemId: id })}
+              onTraceClick={(id) => setOpenModal({ kind: "trace", itemId: id })}
             />
           );
         })}
@@ -65,15 +78,25 @@ export function BriefingView({ payload, briefingDate, enrichmentsByItemId }: Pro
         {" "}/ {payload.coverage.candidate_items_considered} considered
       </p>
 
-      {openItem && openPayloadItem ? (
+      {openModal?.kind === "source" && openEnrichment && openPayloadItem ? (
         <SourceProofModal
           open
-          onClose={() => setOpenItemId(null)}
+          onClose={() => setOpenModal(null)}
           mode="full"
-          item={openItem.item}
-          proof={openItem.proof}
+          item={openEnrichment.item}
+          proof={openEnrichment.proof}
           headline={openPayloadItem.headline}
-          zoningExtraction={openItem.zoningExtraction}
+          zoningExtraction={openEnrichment.zoningExtraction}
+        />
+      ) : null}
+
+      {openModal?.kind === "trace" && openEnrichment && openPayloadItem ? (
+        <TraceModal
+          open
+          onClose={() => setOpenModal(null)}
+          headline={openPayloadItem.headline}
+          item={openEnrichment.item}
+          trace={openEnrichment.trace}
         />
       ) : null}
     </main>

@@ -9,6 +9,7 @@ import type { Item, VerificationReport } from "@revere/shared";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { loadLatestBriefing } from "@/lib/queries/briefing";
 import { loadZoningExtractionWithAdmin } from "@/lib/queries/zoning-extraction";
+import { loadTraceWithAdmin } from "@/lib/queries/trace";
 import { pickSourceProof } from "@/lib/source-proof";
 import { BriefingView, type ItemEnrichment } from "@/components/briefing/BriefingView";
 import { EmptyState } from "@/components/briefing/EmptyState";
@@ -49,13 +50,15 @@ export default async function DemoPage({
   };
 
   const typedRows = rows as unknown as Array<Row & { candidate_item_id: number }>;
-  const extractionsByCid = await Promise.all(
+  const sideQueries = await Promise.all(
     typedRows.map(async (r) => ({
       cid: r.candidate_item_id,
       extraction: await loadZoningExtractionWithAdmin(admin, r.candidate_item_id),
+      trace: await loadTraceWithAdmin(admin, fp, briefing.briefing_date, r.candidate_item_id),
     })),
   );
-  const extractionByCid = new Map(extractionsByCid.map((e) => [e.cid, e.extraction]));
+  const extractionByCid = new Map(sideQueries.map((e) => [e.cid, e.extraction]));
+  const traceByCid = new Map(sideQueries.map((e) => [e.cid, e.trace]));
 
   const enrichmentsByItemId: Record<string, ItemEnrichment> = {};
   for (const r of typedRows) {
@@ -63,7 +66,8 @@ export default async function DemoPage({
     const proof = pickSourceProof(r.verification_reports.report);
     const itemContext = r.score.breakdown.action_window_boost === 1 ? "Imminent vote" : null;
     const zoningExtraction = extractionByCid.get(r.candidate_item_id) ?? null;
-    enrichmentsByItemId[item.id] = { item, proof, itemContext, zoningExtraction };
+    const trace = traceByCid.get(r.candidate_item_id) ?? null;
+    enrichmentsByItemId[item.id] = { item, proof, itemContext, zoningExtraction, trace };
   }
 
   return (
