@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 import type { Item, VerificationReport } from "@revere/shared";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { loadLatestBriefing } from "@/lib/queries/briefing";
+import { loadZoningExtractionWithAdmin } from "@/lib/queries/zoning-extraction";
 import { pickSourceProof } from "@/lib/source-proof";
 import { BriefingView, type ItemEnrichment } from "@/components/briefing/BriefingView";
 import { EmptyState } from "@/components/briefing/EmptyState";
@@ -47,12 +48,22 @@ export default async function DemoPage({
     verification_reports: { report: VerificationReport };
   };
 
+  const typedRows = rows as unknown as Array<Row & { candidate_item_id: number }>;
+  const extractionsByCid = await Promise.all(
+    typedRows.map(async (r) => ({
+      cid: r.candidate_item_id,
+      extraction: await loadZoningExtractionWithAdmin(admin, r.candidate_item_id),
+    })),
+  );
+  const extractionByCid = new Map(extractionsByCid.map((e) => [e.cid, e.extraction]));
+
   const enrichmentsByItemId: Record<string, ItemEnrichment> = {};
-  for (const r of rows as unknown as Row[]) {
+  for (const r of typedRows) {
     const item = r.candidate_items.item;
     const proof = pickSourceProof(r.verification_reports.report);
     const itemContext = r.score.breakdown.action_window_boost === 1 ? "Imminent vote" : null;
-    enrichmentsByItemId[item.id] = { item, proof, itemContext };
+    const zoningExtraction = extractionByCid.get(r.candidate_item_id) ?? null;
+    enrichmentsByItemId[item.id] = { item, proof, itemContext, zoningExtraction };
   }
 
   return (

@@ -12,11 +12,13 @@ import { EmptyState } from "./EmptyState";
 import { SourceProofModal } from "./SourceProofModal";
 import type { BriefingPayload, BriefingPayloadItem } from "@/lib/queries/briefing";
 import type { SourceProofClaim } from "@/lib/source-proof";
+import type { ZoningExtraction } from "@/lib/queries/zoning-extraction";
 
 export interface ItemEnrichment {
   item: Item;
   proof: SourceProofClaim | null;
   itemContext: string | null;
+  zoningExtraction: ZoningExtraction | null;
 }
 
 interface Props {
@@ -67,10 +69,11 @@ export function BriefingView({ payload, briefingDate, enrichmentsByItemId }: Pro
         <SourceProofModal
           open
           onClose={() => setOpenItemId(null)}
-          mode="minimal"
+          mode="full"
           item={openItem.item}
           proof={openItem.proof}
           headline={openPayloadItem.headline}
+          zoningExtraction={openItem.zoningExtraction}
         />
       ) : null}
     </main>

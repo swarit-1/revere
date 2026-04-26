@@ -8,6 +8,7 @@
 import { useEffect } from "react";
 import type { Item } from "@revere/shared";
 import type { SourceProofClaim } from "@/lib/source-proof";
+import type { ZoningExtraction } from "@/lib/queries/zoning-extraction";
 
 interface Props {
   open: boolean;
@@ -16,9 +17,18 @@ interface Props {
   item: Item;
   proof: SourceProofClaim | null;
   headline: string;
+  zoningExtraction?: ZoningExtraction | null;
 }
 
-export function SourceProofModal({ open, onClose, mode, item, proof, headline }: Props) {
+export function SourceProofModal({
+  open,
+  onClose,
+  mode,
+  item,
+  proof,
+  headline,
+  zoningExtraction,
+}: Props) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -138,17 +148,127 @@ export function SourceProofModal({ open, onClose, mode, item, proof, headline }:
           </section>
 
           {mode === "full" ? (
-            <section className="border-t border-whisper pt-8">
-              <p className="text-label uppercase text-district">
-                Parcel & district view
-              </p>
-              <p className="mt-3 text-body-sm text-ink/70">
-                Hi-res map ships in T-26.
-              </p>
-            </section>
+            <ParcelMapSection extraction={zoningExtraction ?? null} item={item} />
           ) : null}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ParcelMapSection({
+  extraction,
+  item,
+}: {
+  extraction: ZoningExtraction | null;
+  item: Item;
+}) {
+  // No row yet — modal renders nothing extra. Common for non-zoning items.
+  if (!extraction) return null;
+
+  const sourcePdfUrl =
+    item.sources[extraction.source_index]?.url ?? item.sources.find((s) => s.type === "staff_report")?.url ?? null;
+
+  const hasOverlay =
+    extraction.bbox != null &&
+    extraction.page_image_url != null &&
+    extraction.page_image_width != null &&
+    extraction.page_image_height != null &&
+    extraction.confidence !== "low";
+
+  // Staff Report PDF deep-link to the page chosen by stage 1. Adobe-style
+  // `#page=N` works in most browsers and PDF viewers.
+  const deepLink =
+    sourcePdfUrl && extraction.page_index
+      ? `${sourcePdfUrl}#page=${extraction.page_index}`
+      : sourcePdfUrl;
+
+  return (
+    <section className="border-t border-whisper pt-8">
+      <p className="text-label uppercase tracking-[0.12em] text-district">
+        Parcel & district view
+      </p>
+
+      {hasOverlay ? (
+        <ParcelMapOverlay
+          imageUrl={extraction.page_image_url!}
+          width={extraction.page_image_width!}
+          height={extraction.page_image_height!}
+          bbox={extraction.bbox!}
+        />
+      ) : extraction.page_image_url ? (
+        // Confidence wasn't strong enough to draw a parcel polygon — render
+        // the page without an overlay so the user still sees the exhibit.
+        <ParcelMapOverlay
+          imageUrl={extraction.page_image_url}
+          width={extraction.page_image_width ?? 1700}
+          height={extraction.page_image_height ?? 2200}
+          bbox={null}
+        />
+      ) : (
+        <p className="mt-3 text-body-sm text-ink/70">
+          The Staff Report does not include a standalone zoning-map exhibit.
+        </p>
+      )}
+
+      <p className="mt-4 max-w-prose text-body-sm text-ink/70">
+        {hasOverlay
+          ? "Parcel localized by Opus 4.7 vision (page-detect → bbox-localize) on the Staff Report exhibit."
+          : "Page localized by Opus 4.7 vision; parcel polygon below confidence threshold — overlay omitted."}
+      </p>
+
+      {deepLink ? (
+        <p className="mt-3 text-body-sm">
+          <a
+            href={deepLink}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="border-b border-vermilion pb-px text-ink hover:text-vermilion"
+          >
+            {extraction.page_index
+              ? `Open Staff Report at page ${extraction.page_index} ↗`
+              : "Open Staff Report ↗"}
+          </a>
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function ParcelMapOverlay({
+  imageUrl,
+  width,
+  height,
+  bbox,
+}: {
+  imageUrl: string;
+  width: number;
+  height: number;
+  bbox: { x: number; y: number; w: number; h: number } | null;
+}) {
+  return (
+    <div className="relative mt-4 w-full overflow-hidden border border-whisper bg-cream">
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="xMidYMid meet"
+        className="block h-auto w-full"
+      >
+        <image href={imageUrl} x={0} y={0} width={width} height={height} />
+        {bbox ? (
+          <rect
+            x={bbox.x}
+            y={bbox.y}
+            width={bbox.w}
+            height={bbox.h}
+            // Vermilion stroke + 25% fill — the third (and most striking)
+            // vermilion use on the page per the locked ceiling.
+            fill="rgba(200, 51, 31, 0.25)"
+            stroke="rgb(200, 51, 31)"
+            strokeWidth={Math.max(2, Math.round(width / 400))}
+            vectorEffect="non-scaling-stroke"
+          />
+        ) : null}
+      </svg>
     </div>
   );
 }

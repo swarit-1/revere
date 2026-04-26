@@ -111,19 +111,30 @@ export async function rasterizeOnePage(
 // (tabloid, 11×17 zoning exhibits) produce 7–10 MB PNGs at 200 DPI.
 // Keeping a single DPI across the codebase would either degrade 8.5×11
 // crispness or break tabloid extraction.
+//
+// Returns the rendered bytes alongside the RenderedPage so the caller
+// doesn't re-read the file from disk after we already had it in memory
+// for the size check.
 export async function rasterizeOnePageUnderByteCap(
   pdfBytes: Uint8Array,
   pageIndex: number,
   preferredDpi: number,
   byteCap: number,
-): Promise<RenderedPage> {
-  const ladder = [preferredDpi, 150, 120, 100];
+): Promise<{ page: RenderedPage; bytes: Buffer }> {
+  // Strict descent: never upscale past the requested DPI even if the cap
+  // is generous — the cap is a ceiling, not a floor.
+  const ladder = [preferredDpi, 150, 120, 100].filter((d, i, arr) => arr.indexOf(d) === i && d <= preferredDpi);
+  if (ladder[0] !== preferredDpi) ladder.unshift(preferredDpi);
+  let lastPage: RenderedPage | null = null;
+  let lastBytes: Buffer | null = null;
   for (const dpi of ladder) {
     const page = await rasterizeOnePage(pdfBytes, pageIndex, dpi);
     const bytes = await readPageBytes(page);
-    if (bytes.length <= byteCap) return page;
+    lastPage = page;
+    lastBytes = bytes;
+    if (bytes.length <= byteCap) return { page, bytes };
   }
-  return rasterizeOnePage(pdfBytes, pageIndex, 100);
+  return { page: lastPage!, bytes: lastBytes! };
 }
 
 export async function readPageBytes(p: RenderedPage): Promise<Buffer> {

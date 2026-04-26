@@ -229,12 +229,14 @@ async function extractOne(row: CandidateRow, args: Args): Promise<SmokeRecord> {
 
   // Stage 2: parcel localization. Re-render that page at full DPI, but
   // step DPI down if the PNG would exceed Anthropic's 5 MB image limit
-  // (tabloid-size exhibits at 200 DPI commonly do). 4.5 MB cap leaves
-  // headroom for base64 expansion.
-  // Anthropic enforces 5 MB on the base64-encoded image; base64 inflates ~33%,
+  // (tabloid-size exhibits at 200 DPI commonly do). Base64 inflates ~33%,
   // so cap raw PNG at 3.5 MB to fit under after encoding.
-  const fullPage = await rasterizeOnePageUnderByteCap(pdfBytes, stage1.page_index, 200, 3_500_000);
-  const fullBytes = await readPageBytes(fullPage);
+  const { page: fullPage, bytes: fullBytes } = await rasterizeOnePageUnderByteCap(
+    pdfBytes,
+    stage1.page_index,
+    200,
+    3_500_000,
+  );
   console.log(
     `[T-26] ${item.id} → page ${stage1.page_index} rendered at 200 DPI: ${fullPage.width}×${fullPage.height} (${(fullBytes.length / 1024 / 1024).toFixed(2)} MB)`,
   );
