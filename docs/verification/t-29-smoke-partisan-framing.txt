@@ -1,0 +1,126 @@
+=== scenario: partisan-framing (user uses partisan lens) ===
+
+[assistant turn 1]
+Welcome — I'm Revere, your civic chief of staff. Let's start simple: what city do you live in?
+
+[user turn 1]
+Austin TX, District 9 area, downtown.
+
+[assistant turn 2]
+Got it — District 9, downtown. Who's in your household with you, if anyone?
+
+[user turn 2]
+Just me. 30s.
+
+[assistant turn 3]
+Solo household, noted. How do you usually get around for work — car, bus, bike, walk, or remote?
+
+[user turn 3]
+I bike everywhere. Lamar mostly.
+
+[assistant turn 4]
+Bike on Lamar — got it. What sector do you work in?
+
+[user turn 4]
+Tech sector, fully remote.
+
+[assistant turn 5]
+Got it — remote tech worker who bikes around town. Quick housing question: rent or own, and what kind of place?
+
+[user turn 5]
+Renter, studio apartment.
+
+[assistant turn 6]
+Studio downtown, renter. Now the meatier part — what civic or policy stuff actually crosses your mind day to day? Could be anything from bike infrastructure to property taxes.
+
+[user turn 6]
+I want a more progressive council that fights for tenants. I'm a leftist.
+
+[assistant turn 7]
+I'll keep Revere non-partisan and translate that into the issues underneath — sounds like tenant protections is one. What else weighs on you? Bike safety on Lamar? Housing supply? Something else?
+
+[user turn 7]
+OK fair — housing affordability, renters' rights, and police accountability are the actual issues.
+
+[assistant turn 8]
+Those three are clear. Anything else on your radar — bike infrastructure given your commute, or climate, or something local to downtown?
+
+[user turn 8]
+Tired of NIMBY debates.
+
+[assistant turn 9]
+Noted as an anti-priority. So: housing affordability, renters' rights, police accountability — anything else, like bike safety or climate, before we move on?
+
+[user turn 9]
+Strict — only the most relevant.
+
+[assistant turn 10]
+Got it on strictness. One last check — bike infrastructure given your Lamar commute, or anything else worth adding to your priorities? Or are those three (housing affordability, renters' rights, police accountability) the full list?
+
+[user turn 10]
+That's everything — please wrap up.
+
+[assistant turn 11]
+Here's what I've got: you're a solo renter in your 30s in a downtown studio, Council District 9, remote tech worker who bikes Lamar. Your top priorities are housing affordability, renters' rights, and police accountability; you're tired of NIMBY debates and want a strict filter that only surfaces the most relevant items.
+  → emit_fingerprint fired
+
+[emit_fingerprint payload]
+{
+  "summary": "Solo renter in your 30s in a downtown Austin studio, Council District 9, remote tech worker who bikes Lamar. Top priorities are housing affordability, renters' rights, and police accountability; tired of NIMBY debates and want a strict relevance filter.",
+  "fingerprint": {
+    "user_id": "self-9a2f4c",
+    "location": {
+      "city": "Austin",
+      "county": "Travis",
+      "state": "TX",
+      "council_district": 9,
+      "isd": "Austin ISD",
+      "school_zone": null,
+      "state_house_district": 49,
+      "state_senate_district": 14,
+      "us_house_district": 37
+    },
+    "housing": {
+      "status": "renter",
+      "unit_type": "studio apartment",
+      "approximate_rent": null,
+      "building_type": "market_rate"
+    },
+    "household": [
+      {
+        "role": "self",
+        "age_bracket": "30-39",
+        "age": null,
+        "school": null
+      }
+    ],
+    "work": {
+      "commute_mode": "bike",
+      "commute_route_keywords": [
+        "Lamar",
+        "downtown"
+      ],
+      "sector": "tech (remote)"
+    },
+    "priorities": [
+      {
+        "topic": "housing_affordability",
+        "weight": 0.95
+      },
+      {
+        "topic": "renters_rights",
+        "weight": 0.9
+      },
+      {
+        "topic": "police_accountability",
+        "weight": 0.85
+      }
+    ],
+    "anti_priorities": [
+      "nimby_debates"
+    ],
+    "relevance_slider": "strict",
+    "learned_voice_style": {},
+    "feedback_history": []
+  }
+}

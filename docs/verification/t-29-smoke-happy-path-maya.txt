@@ -1,0 +1,150 @@
+=== scenario: happy-path-maya (Maya, East Austin renter) ===
+
+[assistant turn 1]
+Welcome — I'm Revere, your civic chief of staff. Let's start simple: what city do you live in?
+
+[user turn 1]
+Hi, I'm Maya. I live in Austin, Texas.
+
+[assistant turn 2]
+Nice to meet you, Maya. Do you know your city council district, or want to give me a neighborhood or cross-streets and I'll work it out?
+
+[user turn 2]
+East Austin, near East Cesar Chavez. I think District 3.
+
+[assistant turn 3]
+Got it — District 3, East Cesar Chavez. Who lives with you in the household?
+
+[user turn 3]
+It's me and my 7-year-old daughter. She's at Zavala Elementary.
+
+[assistant turn 4]
+Thanks. Roughly what age bracket are you in — 20s, 30s, 40s?
+
+[user turn 4]
+I drive — I-35 most days, getting downtown.
+
+[assistant turn 5]
+Noted — driving I-35 to downtown. And your age bracket — 20s, 30s, 40s?
+
+[user turn 5]
+I work in software downtown.
+
+[assistant turn 6]
+Got the work part — software, downtown. Just to circle back: what age bracket are you in — 20s, 30s, 40s?
+
+[user turn 6]
+I rent a 1-bedroom; market-rate, around $1850/month.
+
+[assistant turn 7]
+Thanks for the housing detail. One thing I still need: your age bracket — 20s, 30s, 40s?
+
+[user turn 7]
+I care a lot about housing affordability, school quality at Zavala, and whether the bus actually shows up on time when traffic's bad.
+
+[assistant turn 8]
+Helpful — housing cost, school quality, transit reliability. Anything else weigh on you civically, like public safety, parks, flooding on the east side?
+
+[user turn 8]
+Honestly, also police accountability. And how much childcare costs.
+
+[assistant turn 9]
+Got it. What are you tired of hearing about — topics you'd rather not see crowding your briefing?
+
+[user turn 9]
+I'm tired of hearing about dog parks and ceremonial proclamations.
+
+[assistant turn 10]
+Fair. Last thing: would you rather a tighter briefing where you might miss a few relevant items, or a broader one where some items might not quite fit?
+
+[user turn 10]
+School funding mostly — Zavala has been underfunded.
+
+[assistant turn 11]
+Noted — that sharpens "school quality" into school funding specifically. Back to my last question: tight briefing (might miss a few) or broad (some items might not quite fit)?
+
+[user turn 11]
+I'd rather see a few extra items than miss something important.
+
+[assistant turn 12]
+One quick thing I still need: your age bracket — 20s, 30s, 40s?
+
+[user turn 12]
+That's everything. Please wrap up the fingerprint with what you have.
+
+[assistant turn 13]
+Here's what I've got: you're a renter in District 3 near East Cesar Chavez, with a 7-year-old at Zavala, driving I-35 to a downtown software job. Your top priorities are housing cost, school funding at Zavala, transit reliability, police accountability, and childcare cost — and you'd rather skip dog parks and ceremonial proclamations. You want a broader briefing so nothing important slips through.
+  → emit_fingerprint fired
+
+[emit_fingerprint payload]
+{
+  "fingerprint": {
+    "user_id": "maya",
+    "location": {
+      "city": "Austin",
+      "county": "Travis",
+      "state": "TX",
+      "council_district": 3,
+      "isd": "Austin ISD",
+      "school_zone": "Zavala Elementary",
+      "state_house_district": 51,
+      "state_senate_district": 14,
+      "us_house_district": 35
+    },
+    "housing": {
+      "status": "renter",
+      "unit_type": "1BR apartment",
+      "approximate_rent": 1850,
+      "building_type": "market_rate"
+    },
+    "household": [
+      {
+        "role": "self",
+        "age_bracket": null
+      },
+      {
+        "role": "child",
+        "age": 7,
+        "school": "Zavala Elementary"
+      }
+    ],
+    "work": {
+      "commute_mode": "car",
+      "commute_route_keywords": [
+        "I-35",
+        "downtown"
+      ],
+      "sector": "software"
+    },
+    "priorities": [
+      {
+        "topic": "housing_cost",
+        "weight": 0.95
+      },
+      {
+        "topic": "school_funding",
+        "weight": 0.9
+      },
+      {
+        "topic": "transit_reliability",
+        "weight": 0.75
+      },
+      {
+        "topic": "police_accountability",
+        "weight": 0.8
+      },
+      {
+        "topic": "childcare_cost",
+        "weight": 0.8
+      }
+    ],
+    "anti_priorities": [
+      "dog_parks",
+      "ceremonial_proclamations"
+    ],
+    "relevance_slider": "broad",
+    "learned_voice_style": {},
+    "feedback_history": []
+  },
+  "summary": "Renter in Austin City Council District 3 near East Cesar Chavez, single parent with a 7-year-old at Zavala Elementary, driving I-35 to a downtown software job. Top priorities: housing cost, school funding at Zavala, transit reliability, police accountability, and childcare cost. Tired of dog parks and ceremonial proclamations; prefers a broader briefing."
+}

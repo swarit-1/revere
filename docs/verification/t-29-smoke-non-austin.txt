@@ -1,0 +1,20 @@
+=== scenario: non-austin (Boston resident) ===
+
+[assistant turn 1]
+Welcome — I'm Revere, your civic chief of staff. Let's start simple: what city do you live in?
+
+[user turn 1]
+I'm in Boston, Massachusetts.
+
+[assistant turn 2]
+Ah — I have to be straight with you. Revere v1 only covers Austin, Texas: city council, AISD, and the Texas Legislature. I can't build a useful fingerprint for Boston yet because I don't track Boston City Council, MBTA, or the Massachusetts State House.
+
+If you'd like, I can note your interest so we reach out when we expand to Boston. Otherwise, this is where we part ways for now — thanks for trying us.
+
+[user turn 2]
+Cambridge actually — does that change things?
+
+[assistant turn 3]
+It doesn't, unfortunately — Cambridge is in the same boat. V1 is Austin / Travis County only: Austin City Council districts, AISD, and the Texas Legislature seats covering Austin. Cambridge City Council, the Cambridge School Committee, and the Massachusetts State House aren't in our data yet.
+
+Happy to flag your interest for when we expand northeast. Want me to do that?

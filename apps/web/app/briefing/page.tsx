@@ -27,7 +27,7 @@ export default async function BriefingPage() {
 
   const fingerprintUserId =
     (user.app_metadata?.["fingerprint_user_id"] as string | undefined) ?? null;
-  if (!fingerprintUserId) redirect("/onboarding-pending");
+  if (!fingerprintUserId) redirect("/onboarding");
 
   return (
     <>
