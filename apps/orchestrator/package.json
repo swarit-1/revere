@@ -12,7 +12,8 @@
     "test": "vitest run",
     "ingest:austin": "tsx src/ingest/austin-council.ts",
     "verify": "tsx src/verify/verify.ts",
-    "match": "tsx src/match/match.ts"
+    "match": "tsx src/match/match.ts",
+    "compose": "tsx src/compose/compose.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
