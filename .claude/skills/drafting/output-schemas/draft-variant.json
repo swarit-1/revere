@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DraftVariant",
+  "description": "Final draft text for one voice (Direct / Measured / Persuasive). Persisted as one row in the drafts table.",
+  "type": "object",
+  "required": ["voice", "text", "references", "critique_trail"],
+  "properties": {
+    "voice": {
+      "type": "string",
+      "enum": ["direct", "measured", "persuasive"]
+    },
+    "text": {
+      "type": "string",
+      "description": "The draft body. ≤ 360 words. No user contact info — that's added client-side at mailto encoding time."
+    },
+    "references": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Legistar item file ids cited in the draft. e.g. ['26-1501']."
+    },
+    "critique_trail": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": { "$ref": "#/definitions/CritiqueEntry" },
+      "description": "One entry per critic pass, in order: council_staffer, opposing_constituent, press_shop."
+    }
+  },
+  "definitions": {
+    "CritiqueEntry": {
+      "type": "object",
+      "required": ["critic", "issues", "remediation", "response"],
+      "properties": {
+        "critic": {
+          "type": "string",
+          "enum": ["council_staffer", "opposing_constituent", "press_shop"]
+        },
+        "issues": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/Issue" }
+        },
+        "remediation": {
+          "type": "string",
+          "enum": ["accept_some", "accept_all", "defend"]
+        },
+        "response": {
+          "type": "string",
+          "description": "Refiner's one-line note: which points accepted, which defended."
+        }
+      }
+    },
+    "Issue": {
+      "type": "object",
+      "required": ["severity", "description"],
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "description": {
+          "type": "string"
+        },
+        "suggested_rewrite": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

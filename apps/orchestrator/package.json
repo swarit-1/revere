@@ -14,7 +14,8 @@
     "verify": "tsx src/verify/verify.ts",
     "match": "tsx src/match/match.ts",
     "compose": "tsx src/compose/compose.ts",
-    "extract:zoning": "tsx src/vision/extract.ts"
+    "extract:zoning": "tsx src/vision/extract.ts",
+    "draft": "tsx src/draft/draft.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
