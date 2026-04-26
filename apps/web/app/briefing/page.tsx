@@ -13,6 +13,7 @@ import { pickSourceProof } from "@/lib/source-proof";
 import { BriefingView, type ItemEnrichment } from "@/components/briefing/BriefingView";
 import { BriefingSkeleton } from "@/components/briefing/BriefingSkeleton";
 import { EmptyState } from "@/components/briefing/EmptyState";
+import { PersonaSwitcher } from "@/components/briefing/PersonaSwitcher";
 
 export const dynamic = "force-dynamic";
 
@@ -26,9 +27,12 @@ export default async function BriefingPage() {
   if (!fingerprintUserId) redirect("/onboarding-pending");
 
   return (
-    <Suspense fallback={<BriefingSkeleton />}>
-      <BriefingContent fingerprintUserId={fingerprintUserId} />
-    </Suspense>
+    <>
+      <Suspense fallback={<BriefingSkeleton />}>
+        <BriefingContent fingerprintUserId={fingerprintUserId} />
+      </Suspense>
+      <PersonaSwitcher current={fingerprintUserId} />
+    </>
   );
 }
 
