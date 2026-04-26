@@ -32,10 +32,17 @@ export type CachedSystemBlock = TextBlockParam & {
   cache_control?: { type: "ephemeral" } | null;
 };
 
+// User content block — text only, optionally cache-controlled.
+export type UserContentBlock = {
+  type: "text";
+  text: string;
+  cache_control?: { type: "ephemeral" } | null;
+};
+
 export interface InvokeArgs {
   model: string;
   systemBlocks: CachedSystemBlock[]; // each may carry cache_control
-  userMessage: string;
+  userMessage: string | UserContentBlock[]; // string for simple calls; array enables cache_control on user content
   tool: Tool;
   maxTokens?: number;
 }
@@ -50,7 +57,13 @@ export interface InvokeResult {
 }
 
 export async function invokeWithTool(args: InvokeArgs): Promise<InvokeResult> {
-  const messages: MessageParam[] = [{ role: "user", content: args.userMessage }];
+  // SDK 0.30.1 doesn't surface cache_control in MessageParam content types
+  // either; cast to bypass. API supports it.
+  const userContent =
+    typeof args.userMessage === "string"
+      ? args.userMessage
+      : (args.userMessage as unknown as MessageParam["content"]);
+  const messages: MessageParam[] = [{ role: "user", content: userContent }];
   const res = await anthropic().messages.create({
     model: args.model,
     max_tokens: args.maxTokens ?? 2048,

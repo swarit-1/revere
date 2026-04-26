@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "echo \"(no lint yet)\"",
     "test": "vitest run",
-    "ingest:austin": "tsx src/ingest/austin-council.ts"
+    "ingest:austin": "tsx src/ingest/austin-council.ts",
+    "verify": "tsx src/verify/verify.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.1",
