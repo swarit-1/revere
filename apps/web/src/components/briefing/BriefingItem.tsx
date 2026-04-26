@@ -12,6 +12,8 @@ interface Props {
   itemType: string;
   onSourceClick: (itemId: string) => void;
   onTraceClick: (itemId: string) => void;
+  onDraftClick: (itemId: string) => void;
+  hasDrafts: boolean;
   itemContext?: string | null; // e.g. "Imminent vote" if action_window_boost was 1
 }
 
@@ -29,6 +31,8 @@ export function BriefingItem({
   itemType,
   onSourceClick,
   onTraceClick,
+  onDraftClick,
+  hasDrafts,
   itemContext,
 }: Props) {
   const districtLabel = councilDistrict
@@ -75,6 +79,15 @@ export function BriefingItem({
         >
           Why am I seeing this? ↗
         </button>
+        {hasDrafts ? (
+          <button
+            type="button"
+            onClick={() => onDraftClick(item.item_id)}
+            className="border-b border-vermilion pb-px text-ink hover:text-vermilion"
+          >
+            Draft a reply ↗
+          </button>
+        ) : null}
         <span className="flex items-center gap-2 text-district">
           <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-district" />
           High confidence

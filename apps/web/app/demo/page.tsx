@@ -10,6 +10,7 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 import { loadLatestBriefing } from "@/lib/queries/briefing";
 import { loadZoningExtractionWithAdmin } from "@/lib/queries/zoning-extraction";
 import { loadTraceWithAdmin } from "@/lib/queries/trace";
+import { loadDraftsWithAdmin } from "@/lib/queries/drafts";
 import { pickSourceProof } from "@/lib/source-proof";
 import { BriefingView, type ItemEnrichment } from "@/components/briefing/BriefingView";
 import { EmptyState } from "@/components/briefing/EmptyState";
@@ -55,10 +56,12 @@ export default async function DemoPage({
       cid: r.candidate_item_id,
       extraction: await loadZoningExtractionWithAdmin(admin, r.candidate_item_id),
       trace: await loadTraceWithAdmin(admin, fp, briefing.briefing_date, r.candidate_item_id),
+      drafts: await loadDraftsWithAdmin(admin, fp, r.candidate_item_id),
     })),
   );
   const extractionByCid = new Map(sideQueries.map((e) => [e.cid, e.extraction]));
   const traceByCid = new Map(sideQueries.map((e) => [e.cid, e.trace]));
+  const draftsByCid = new Map(sideQueries.map((e) => [e.cid, e.drafts]));
 
   const enrichmentsByItemId: Record<string, ItemEnrichment> = {};
   for (const r of typedRows) {
@@ -67,7 +70,8 @@ export default async function DemoPage({
     const itemContext = r.score.breakdown.action_window_boost === 1 ? "Imminent vote" : null;
     const zoningExtraction = extractionByCid.get(r.candidate_item_id) ?? null;
     const trace = traceByCid.get(r.candidate_item_id) ?? null;
-    enrichmentsByItemId[item.id] = { item, proof, itemContext, zoningExtraction, trace };
+    const drafts = draftsByCid.get(r.candidate_item_id) ?? [];
+    enrichmentsByItemId[item.id] = { item, proof, itemContext, zoningExtraction, trace, drafts };
   }
 
   return (
