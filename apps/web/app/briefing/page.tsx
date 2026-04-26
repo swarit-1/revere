@@ -1,9 +1,18 @@
-// /briefing — server component. Reads session, looks up fingerprint, queries
-// today's briefing. T-23 ships the auth-gate skeleton; T-25 fully styles
-// the rendered cover header and item list.
+// /briefing — server component. Reads session, RLS-gated briefing query,
+// resolves item enrichments (item record + source-proof claim) for the
+// modal. The render goes inside a Suspense boundary so a slow query
+// shows the editorial skeleton, not blank cream.
 
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import type { Item, VerificationReport } from "@revere/shared";
 import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+import { loadLatestBriefing } from "@/lib/queries/briefing";
+import { pickSourceProof } from "@/lib/source-proof";
+import { BriefingView, type ItemEnrichment } from "@/components/briefing/BriefingView";
+import { BriefingSkeleton } from "@/components/briefing/BriefingSkeleton";
+import { EmptyState } from "@/components/briefing/EmptyState";
 
 export const dynamic = "force-dynamic";
 
@@ -16,39 +25,56 @@ export default async function BriefingPage() {
     (user.app_metadata?.["fingerprint_user_id"] as string | undefined) ?? null;
   if (!fingerprintUserId) redirect("/onboarding-pending");
 
-  // Pick the most recent briefing for this user. RLS gates: returns null if
-  // the JWT's app_metadata.fingerprint_user_id doesn't match the row.
-  const { data: briefing } = await sb
-    .from("briefings")
-    .select("user_id, briefing_date, payload")
+  return (
+    <Suspense fallback={<BriefingSkeleton />}>
+      <BriefingContent fingerprintUserId={fingerprintUserId} />
+    </Suspense>
+  );
+}
+
+async function BriefingContent({ fingerprintUserId }: { fingerprintUserId: string }) {
+  const sb = await supabaseServer();
+  const briefing = await loadLatestBriefing(sb, fingerprintUserId);
+
+  if (!briefing) {
+    return <EmptyState meetingDate={null} />;
+  }
+
+  // candidate_items + verification_reports are admin-only in v1 (no RLS
+  // policy exists for authenticated). We resolve item enrichments
+  // server-side via the admin client so the modal renders instantly.
+  const admin = supabaseAdmin();
+  const itemIds = briefing.payload.items.map((i) => i.candidate_item_id);
+  const { data: rows, error } = await admin
+    .from("briefing_items")
+    .select(
+      "candidate_item_id, score, candidate_items!inner(item), verification_reports!inner(report)",
+    )
     .eq("user_id", fingerprintUserId)
-    .order("briefing_date", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .eq("briefing_date", briefing.briefing_date)
+    .in("candidate_item_id", itemIds);
+  if (error) throw new Error(`enrichments load: ${error.message}`);
+
+  type Row = {
+    candidate_item_id: number;
+    score: { breakdown: { action_window_boost: number } };
+    candidate_items: { item: Item };
+    verification_reports: { report: VerificationReport };
+  };
+
+  const enrichmentsByItemId: Record<string, ItemEnrichment> = {};
+  for (const r of rows as unknown as Row[]) {
+    const item = r.candidate_items.item;
+    const proof = pickSourceProof(r.verification_reports.report);
+    const itemContext = r.score.breakdown.action_window_boost === 1 ? "Imminent vote" : null;
+    enrichmentsByItemId[item.id] = { item, proof, itemContext };
+  }
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-16">
-      <p className="text-xs uppercase tracking-wider text-ink/60">
-        Signed in as {user.email}
-      </p>
-      <p className="mt-1 text-xs text-ink/40">
-        fingerprint: <span className="font-mono">{fingerprintUserId}</span>
-      </p>
-      {briefing ? (
-        <>
-          <h1 className="mt-12 font-serif text-3xl text-ink">
-            {(briefing.payload as { cover_header: string }).cover_header}
-          </h1>
-          <p className="mt-4 text-sm text-ink/60">
-            T-25 will render the full item list here. For now the auth path
-            and RLS are end-to-end verified.
-          </p>
-        </>
-      ) : (
-        <p className="mt-12 text-sm text-ink/70">
-          No briefing for today.
-        </p>
-      )}
-    </main>
+    <BriefingView
+      payload={briefing.payload}
+      briefingDate={briefing.briefing_date}
+      enrichmentsByItemId={enrichmentsByItemId}
+    />
   );
 }
