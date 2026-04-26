@@ -2,7 +2,11 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "plugins": [{ "name": "next" }],
-    "paths": { "@/*": ["./app/*"] },
+    "paths": {
+      "@/*": ["./app/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/components/*": ["./src/components/*"]
+    },
     "noEmit": true,
     "incremental": true
   },
