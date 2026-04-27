@@ -50,14 +50,20 @@ re-run when the demo flow changes.
 
 | run | duration | size | pass (≤2:05) |
 |---|---|---|---|
-| **t-32-demo-2min** (canonical) | 1:59 (119.9s) | 8.12 MB | ✓ |
-| t-33-rehearsal-1 | 1:59 (119.5s) | 7.97 MB | ✓ |
-| t-33-rehearsal-2 | 1:59 (119.2s) | 7.80 MB | ✓ |
-| t-33-rehearsal-3 | 1:59 (119.1s) | 7.98 MB | ✓ |
+| **t-32-demo-2min** (canonical) | 1:59 (119.9s) | ~8 MB | ✓ |
+| rehearsal 1 | 1:59 (119.5s) | ~8 MB | ✓ |
+| rehearsal 2 | 1:59 (119.2s) | ~8 MB | ✓ |
+| rehearsal 3 | 1:59 (119.1s) | ~8 MB | ✓ |
 
 **Variance**: 0.8s across four back-to-back runs. The timing is
 dominated by `page.wait_for_timeout()` calls, not by data fetches —
 all per-item enrichment happens server-side at /demo route render.
+
+> **Submission cleanup note.** The three rehearsal `.webm` files
+> were pruned at submission time to keep the repo lean. The canonical
+> `t-32-demo-2min.webm` is the artifact judges watch; rehearsals
+> existed solely as proof of timing repeatability (table above). Re-run
+> them anytime via `python3 scripts/record-demo-2min.py --out-dir ...`.
 
 ## Beat sheet (matches docs/demo-script.md)
 

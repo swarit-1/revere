@@ -4,9 +4,11 @@ The on-stage walk-through. Mirrors PRD §19.2 beat sheet against the
 as-built UI from Sessions 6–8 plus the Session 9 demo cards.
 
 Total runtime target: **2:00**, with 5 seconds of slack. Hard cap:
-2:05. Three rehearsal recordings live at
-`docs/verification/t-33-rehearsal-{1,2,3}.webm`; the canonical
-submission cut lives at `docs/verification/t-32-demo-2min.webm`.
+2:05. The canonical submission cut lives at
+`docs/verification/t-32-demo-2min.webm` (1:59); three rehearsal
+recordings during build-out all came in at 1:59 ± 0.6s — the
+timing table is preserved in `docs/verification/t-32-demo-gate.md`.
+Re-record any time via `python3 scripts/record-demo-2min.py`.
 
 ## Pre-flight (do this 60 seconds before going on stage)
 
