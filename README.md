@@ -7,9 +7,6 @@
 
 Hackathon submission · Built with Claude Opus 4.7 · April 2026.
 
-**Demo video** — [`docs/verification/t-32-demo-2min.webm`](docs/verification/t-32-demo-2min.webm) (1:59) ·
-**Submission blurb** — [`docs/submission-blurb.md`](docs/submission-blurb.md) ·
-**Demo script** — [`docs/demo-script.md`](docs/demo-script.md)
 
 ## What it does
 
